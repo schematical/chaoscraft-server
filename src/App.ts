@@ -2,24 +2,35 @@ import * as Socket from 'socket.io'
 import * as debug from 'debug';
 import * as http from 'http';
 import * as express from 'express';
-
+import { Routes } from './routes/index';
+import { Redis } from './Redis';
+import { Mongoose } from './Mongoose';
 class App{
-    protected app:express.Application;
+    protected _express:express.Application;
     protected socket:SocketIO.Server = null;
+    protected _redis:Redis = null;
+    protected _mongo:Mongoose = null;
     run(){
 
-        this.app = express()
-        this.app.use((req, res, next)=>{
-            res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-            return next();
-        })
-        this.app.get('/', (req, res) => res.send('Hello World!'))
-        var server = http.createServer(this.app);
+        this._express = express()
+
+        Routes.setup(this);
+        var server = http.createServer(this.express);
         this.setupSocket(server);
         server.listen(3000, ()=>{
             console.log("Express Listening");
         });
-
+        this._mongo = new Mongoose();
+        //this._redis = new Redis();
+    }
+    get redis(){
+        return this._redis;
+    }
+    get mongo(){
+        return this._mongo
+    }
+    get express(){
+        return this._express;
     }
     setupSocket(server){
         this.socket = Socket(
@@ -55,4 +66,5 @@ class App{
         });
     }
 }
+export { App }
 export default new App().run()
