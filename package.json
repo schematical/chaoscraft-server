@@ -25,6 +25,7 @@
     "minecraft-data": "^2.26.0",
     "mongoose": "^5.0.8",
     "redis": "^2.8.0",
+    "replaceall": "^0.1.6",
     "socket.io": "^2.0.4"
   },
   "devDependencies": {

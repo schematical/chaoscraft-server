@@ -1,8 +1,9 @@
 import { Schema, Document } from "mongoose";
 
-var BrainSchema: Schema = new Schema({
+var BotSchema: Schema = new Schema({
     createdAt: Date,
     name:String,
+    username:String,
     brain:String,
     generation:Number,
     age:Number,
@@ -16,15 +17,22 @@ var BrainSchema: Schema = new Schema({
     }
 });
 
-BrainSchema.pre("save", function(next) {
+/*BotSchema.options.toObject.transform = function (doc, ret, options) {
+    // remove the _id of every document before returning the result
+    delete ret._id;
+    return ret;
+}*/
+
+BotSchema.pre("save", function(next) {
     if (!this.createdAt) {
         this.createdAt = new Date();
     }
     next();
 });
-interface IBrain extends Document {
+interface iBot extends Document {
     createdAt?: Date;
     name?: string;
+    username?:string;
     brain?: string;
     generation?: string;
     age: Number,
@@ -33,6 +41,6 @@ interface IBrain extends Document {
 }
 
 export {
-    IBrain,
-    BrainSchema
+    iBot,
+    BotSchema
 }

@@ -1,6 +1,6 @@
 import * as config from 'config';
 import * as mongoose from 'mongoose';
-import { BrainSchema } from './models/Brain';
+import { BotSchema } from '../models/Bot';
 class Mongoose{
     protected db:any = {};
     protected _models:any = {};
@@ -14,7 +14,7 @@ class Mongoose{
             });
             this._models[key] = {};
         })
-        this._models.chaoscraft.Brain = this.db.chaoscraft.model('Brain', BrainSchema);
+        this._models.chaoscraft.Bot = this.db.chaoscraft.model('Bot', BotSchema);
 
     }
     get models():any{
