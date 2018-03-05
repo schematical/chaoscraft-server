@@ -16,11 +16,13 @@ class Routes{
         app.express.use(bodyParser.urlencoded({extended: false}));
 
         app.express.use((req, res, next)=>{
-            res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+            res.set('Access-Control-Allow-Headers', 'true');
+            res.set('Access-Control-Allow-Credentials', 'true');
+            res.set('Access-Control-Allow-Origin', 'http://localhost:4200');
             return next();
         })
         app.express.get('/', (req, res) => res.send('Hello World!'));
-        app.express.post('/brains/test', (req, res, next) => {
+        app.express.get('/brains/test', (req, res, next) => {
             let options = {
                 length: req.body.length || 10,
                 maxChainLength: req.body.maxChainLength || 3
