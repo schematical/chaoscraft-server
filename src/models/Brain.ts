@@ -5,6 +5,7 @@ var BrainSchema: Schema = new Schema({
     name:String,
     brain:String,
     generation:Number,
+    age:Number,
     mother:{
         type: Schema.Types.ObjectId,
         ref: 'Brain'
@@ -26,6 +27,7 @@ interface IBrain extends Document {
     name?: string;
     brain?: string;
     generation?: string;
+    age: Number,
     mother?: Schema.Types.ObjectId;
     father?: Schema.Types.ObjectId;
 }

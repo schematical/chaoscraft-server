@@ -17,8 +17,12 @@
   },
   "homepage": "https://github.com/schematical/chaos-craft-server#readme",
   "dependencies": {
+    "body-parser": "^1.18.2",
+    "chaoscraft-shared": "https://github.com/schematical/chaoscraft-shared",
     "debug": "^3.1.0",
+    "errorhandler": "^1.5.0",
     "express": "^4.16.2",
+    "minecraft-data": "^2.26.0",
     "mongoose": "^5.0.8",
     "redis": "^2.8.0",
     "socket.io": "^2.0.4"

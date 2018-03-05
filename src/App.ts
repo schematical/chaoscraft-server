@@ -5,6 +5,7 @@ import * as express from 'express';
 import { Routes } from './routes/index';
 import { Redis } from './Redis';
 import { Mongoose } from './Mongoose';
+import { IBrain } from './models/Brain';
 class App{
     protected _express:express.Application;
     protected socket:SocketIO.Server = null;
@@ -44,24 +45,32 @@ class App{
                 cookie: false*/
             }
         );
-        this.socket.on('connection', function (socket) {
+        this.socket.on('connection',  (socket)=> {
             socket.join('main');
             console.log("New bot connected");
             // when the client emits 'new message', this listens and executes
-            socket.on('www_hello', function (data) {
+            socket.on('www_hello',  (data) => {
                 // we tell the client to execute 'new message'
                 console.log("WWW_HELLO hit")
                 socket.emit('www_hello_response', {
                     username: 'x',//socket.username,
                     message: data
                 });
+
             });
-            socket.on('client_hello', function (data) {
+            socket.on('client_hello',  (data) => {
                 // we tell the client to execute 'new message'
-                socket.emit('client_hello_response', {
-                    username: 'x',//socket.username,
-                    message: data
-                });
+                return this.mongo.models.chaoscraft.Brain.findOne({
+                    name:'Test'
+                }, (err:Error, brain:IBrain)=>{
+                    if(err) {
+                        return socket.emit('error',  { message: err.message });
+                    }
+
+                    socket.emit('client_hello_response', brain.toObject());
+
+                })
+
             });
         });
     }

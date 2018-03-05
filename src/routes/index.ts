@@ -1,13 +1,34 @@
 import { IBrain } from '../models/Brain';
 import { App } from '../App';
 import * as fs from 'fs';
+import * as errorHandler from 'errorhandler';
+import * as bodyParser from 'body-parser';
+import { BrainMaker } from '../services/BrainMaker'
 class Routes{
     static setup(app:App){
+        app.express.disable('etag');
+        app.express.enable('trust proxy');
+        app.express.use(errorHandler());
+        app.express.get('/heartbeat', (req, res, next)=>{
+            return res.json({ status: "Living the dream!!!!" });
+        })
+        app.express.use(bodyParser.json());
+        app.express.use(bodyParser.urlencoded({extended: false}));
+
         app.express.use((req, res, next)=>{
             res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
             return next();
         })
         app.express.get('/', (req, res) => res.send('Hello World!'));
+        app.express.post('/brains/test', (req, res, next) => {
+            let options = {
+                length: req.body.length || 10,
+                maxChainLength: req.body.maxChainLength || 3
+            }
+            let brainMaker = new BrainMaker();
+            let brainData = brainMaker.create(options);
+            return res.json(brainData);
+        });
         app.express.post('/brains', (req, res, next) => {
             //Load a brain
             let brain = app.mongo.models.chaoscraft.Brain({
