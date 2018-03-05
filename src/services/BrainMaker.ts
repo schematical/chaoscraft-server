@@ -58,7 +58,7 @@ class BrainMaker{
                 safeGuard += 1;
 
                 currRow += nextNodeRow;
-                let nextNodeIndex = Math.round(Math.random() * this.nodeLayers[currRow].length);
+                let nextNodeIndex = Math.floor(Math.random() * this.nodeLayers[currRow].length);
                 console.log('currRow',currRow, 'nextNodeIndex',nextNodeIndex);
 
                 let nextNode = this.nodeLayers[currRow][nextNodeIndex];
@@ -102,30 +102,31 @@ class BrainMaker{
     }
 
     randInput(i){
-        let inputKeyIndex = Math.round(Math.random() * this.INPUT_KEYS.length);
+        let inputKeyIndex = Math.floor(Math.random() * this.INPUT_KEYS.length);
         let input = this.INPUT_KEYS[inputKeyIndex];
         let inputNode:any = {
             id:'input_' + i,
             base_type:'input',
             type:input,
+            target:{}
         }
         switch(input){
             case(Enum.InputTypes.canSeeBlock):
                 inputNode.target = {
                     type:'block',
-                    id: this.randBlock()
+                    block: this.randBlock().id
                 }
                 break;
             case(Enum.InputTypes.canDigBlock):
                 inputNode.target = {
                     type:'block',
-                    id: this.randBlock()
+                    block: this.randBlock().id
                 }
                 break;
             case(Enum.InputTypes.canSeeEntity):
                 inputNode.target = {
                     type:'entity',
-                    id: this.randEntity()
+                    entity: this.randEntity().id
                 }
                 break;
 
@@ -133,12 +134,12 @@ class BrainMaker{
                 if(Math.round(Math.random()) == 0){
                     inputNode.target = {
                         type:'item',
-                        id: this.randItem()
+                        item: this.randItem().id
                     }
                 }else{
                     inputNode.target = {
                         type:'block',
-                        id: this.randBlock()
+                        block: this.randBlock().id
                     }
                 }
 
@@ -156,7 +157,7 @@ class BrainMaker{
 
     }
     randOutput(i:number){
-        let outputKeyIndex = Math.round(Math.random() * this.OUTPUT_KEYS.length);
+        let outputKeyIndex = Math.floor(Math.random() * this.OUTPUT_KEYS.length);
         let output = this.OUTPUT_KEYS[outputKeyIndex];
 
         let outputNode:any = {
