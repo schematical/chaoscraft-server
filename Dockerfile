@@ -11,7 +11,7 @@ RUN npm i typescript
 #RUN ls -la ./node_modules/chaoscraft-shared
 RUN node ./node_modules/typescript/bin/tsc
 RUN npm uninstall typescript
-#EXPOSE 3000
+EXPOSE 80
 VOLUME /content
 ENV NODE_ENV=production
 
