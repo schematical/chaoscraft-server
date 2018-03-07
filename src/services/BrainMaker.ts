@@ -81,7 +81,7 @@ class BrainMaker{
             });
 
         }
-        //TODO: Put Middle Node dependancy test
+
         let brainData = {};
         //Put all outputs but only the inputs and middles that are depended on
         function addNode(node){

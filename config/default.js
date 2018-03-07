@@ -3,8 +3,8 @@ module.exports = {
     redis:{
         chaoscraft: {
             port: 6379,
-            host: process.env.REDIS_HOST || 'slack-tools.bdzyjf.0001.use1.cache.amazonaws.com',
-            prefix: 'chaoscraft:'
+            host:  'slack-tools.bdzyjf.0001.use1.cache.amazonaws.com',
+            prefix: 'chaoscraftx:'
         }
     },
     mongo:{

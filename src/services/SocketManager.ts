@@ -87,7 +87,57 @@ class BotSocket{
         this.socket.on('client_fire_outputnode', (payload)=>{
             this.onFireOutputNode(payload);
         });
+        this.socket.on('client_not_firing', (payload)=>{
+            this.onClientNotFiring(payload);
+        });
+        this.socket.on('client_day_1', (payload)=>{
+            this.onClientDay1(payload);
+        });
+    }
+    onClientDay1(payload){
 
+    }
+    onClientNotFiring(payload){
+        //Delete the user?
+        let p = new Promise((resolve, reject)=>{
+
+            return this.sm.app.mongo.models.chaoscraft.Bot.findOne({
+                username: payload.username
+            }, (err:Error, bot:iBot)=>{
+                if(err) {
+                    return reject(err);
+                }
+                this.bot = bot;
+                return resolve(bot);
+            })
+
+        })
+        .then((bot:iBot)=>{
+            return new Promise((resolve, reject)=>{
+                return bot.remove((err)=>{
+                    if(err){
+                        return reject(err);
+                    }
+                    return resolve();
+                })
+            })
+        })
+        .then(()=>{
+            return new Promise((resolve, reject)=>{
+                this.sm.app.redis.clients.chaoscraft.srem('/active_bots', this.bot.username, (err)=>{
+                    if(err){
+                        return reject(err);
+                    }
+                    return resolve();
+                });
+            });
+        })
+        .then(()=>{
+            return this.onHello({});
+        })
+        .catch((err)=>{
+            console.error(err.message, err.stack);
+        })
     }
     onFireOutputNode(payload){
         this.socket.broadcast.emit('client_fire_outputnode', {
@@ -109,47 +159,8 @@ class BotSocket{
     onHello(data){
         let p = new Promise((resolve, reject)=>{
             if(data.username){
-                return resolve(data.username);
-            }
-            //Load any bots on deck
-            //this.app.redis.smembers('/')
-            return resolve(false);
-        })
-        .then((botId)=>{
-            return new Promise((resolve, reject)=>{
-
-                if(!botId){
-                    //Lets create one
-                    let options = {
-                        length: 100,
-                        maxChainLength:  10
-                    }
-                    let brainMaker = new BrainMaker();
-                    let brainData = brainMaker.create(options);
-                    let names = fs.readFileSync(__dirname + '/../../config/names.csv').toString().split('\n')
-                    let name = names[Math.floor(Math.random() * names.length)].split(',')[1];
-                    let username = name.toLowerCase();
-                    username = replaceall(' ', '-', username);
-                    username = replaceall(',', '', username);
-                    username = replaceall('.', '', username);
-                    let generation = 0;
-                    this.bot = this.sm.app.mongo.models.chaoscraft.Bot({
-                        username: username +'-'+generation,
-                        name:name,
-                        brain: JSON.stringify(brainData),
-                        generation:generation
-                    })
-                    return this.bot.save((err:Error, bot:iBot)=>{
-                        if(err) {
-                            return reject(err);
-                        }
-                        return resolve(bot);
-
-                    })
-                }
-                // we tell the client to execute 'new message'
                 return this.sm.app.mongo.models.chaoscraft.Bot.findOne({
-                    username: botId
+                    username: data.username
                 }, (err:Error, bot:iBot)=>{
                     if(err) {
                         throw err;
@@ -157,6 +168,59 @@ class BotSocket{
                     this.bot = bot;
                     return resolve(bot);
                 })
+            }
+            //Load any bots on deck
+            return this.sm.app.redis.clients.chaoscraft.smembers('/active_bots', (err, usernames)=>{
+                if(err) return reject(err);
+                return this.sm.app.mongo.models.chaoscraft.Bot.findOne({
+                    username: {
+                        $nin: usernames
+                    }
+                }, (err:Error, bot:iBot)=>{
+                    if(err) {
+                        throw err;
+                    }
+                    this.bot = bot;
+                    return resolve(bot);
+                })
+            })
+
+
+        })
+        .then((bot)=>{
+            if(bot){
+                return bot;
+            }
+            return new Promise((resolve, reject)=>{
+
+                //Lets create one
+                let options = {
+                    length: 20,
+                    maxChainLength:  10
+                }
+                let brainMaker = new BrainMaker();
+                let brainData = brainMaker.create(options);
+                let names = fs.readFileSync(__dirname + '/../../config/names.csv').toString().split('\n')
+                let name = names[Math.floor(Math.random() * names.length)].split(',')[1];
+                let username = name.toLowerCase();
+                username = replaceall(' ', '-', username);
+                username = replaceall(',', '', username);
+                username = replaceall('.', '', username);
+                let generation = 0;
+                this.bot = this.sm.app.mongo.models.chaoscraft.Bot({
+                    username: username +'-'+generation,
+                    name:name,
+                    brain: JSON.stringify(brainData),
+                    generation:generation
+                })
+                return this.bot.save((err:Error, bot:iBot)=>{
+                    if(err) {
+                        return reject(err);
+                    }
+                    return resolve(bot);
+
+                })
+
             })
         })
         .then(()=>{

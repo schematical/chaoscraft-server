@@ -15,9 +15,9 @@ class Routes{
         app.express.param('bot', (req, res, next)=>{
             return app.mongo.models.chaoscraft.Bot.findOne({
                 $or:[
-                    {
+                   /* {
                         _id: req.params.bot
-                    },
+                    },*/
                     {
                         username: req.params.bot
                     }

@@ -6,6 +6,7 @@ class Redis{
         let redisConfig = config.get('redis');
 
         Object.keys(redisConfig).forEach((key)=>{
+            console.log('redisConfig[key]', redisConfig[key]);
             this._clients[key] = redis.createClient(redisConfig[key]);
             this._clients[key] .on("error", function (err) {
                 console.log("Error " + err);
