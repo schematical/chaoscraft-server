@@ -23,7 +23,7 @@ class App{
         var server = http.createServer(this.express);
         this.socket = new SocketManager(this, server);
         server.listen(config.get('port'), ()=>{
-            console.log("Express Listening");
+            console.log("Express Listening:", config.get('port'));
         });
 
     }
