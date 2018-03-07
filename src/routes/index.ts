@@ -10,7 +10,9 @@ class Routes{
         app.express.enable('trust proxy');
         app.express.use(errorHandler());
         app.express.get('/heartbeat', (req, res, next)=>{
+            console.log("Heartbeat");
             return res.json({ status: "Living the dream!!!!" });
+
         })
         app.express.param('bot', (req, res, next)=>{
             return app.mongo.models.chaoscraft.Bot.findOne({
