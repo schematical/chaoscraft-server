@@ -11,11 +11,8 @@ phases:
   build:
     commands:
       - pwd
-      - ls -la
       - echo Build started on `date`
       - echo Building the Docker image...
-      - gradle build
-      - ls ./build/ -la
       - docker build -t $IMAGE_REPO_NAME .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
   post_build:
