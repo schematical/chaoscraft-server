@@ -1,5 +1,5 @@
 module.exports = {
-    port: process.env.PORT || 80,
+    port: 80,
     redis:{
         chaoscraft: {
             port: 6379,

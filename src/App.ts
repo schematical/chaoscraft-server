@@ -7,6 +7,7 @@ import { Mongoose } from './services/Mongoose';
 
 import { Redis } from './services/Redis';
 import { SocketManager } from './services/SocketManager'
+import * as config from 'config'
 class App{
     protected _express:express.Application;
     protected socket:SocketManager = null;
@@ -21,7 +22,7 @@ class App{
         Routes.setup(this);
         var server = http.createServer(this.express);
         this.socket = new SocketManager(this, server);
-        server.listen(3000, ()=>{
+        server.listen(config.get('port'), ()=>{
             console.log("Express Listening");
         });
 
