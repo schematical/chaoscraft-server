@@ -118,13 +118,14 @@ class BotSocket{
                     if(err){
                         return reject(err);
                     }
-                    return resolve();
+                    return resolve(bot);
                 })
             })
         })
-        .then(()=>{
+        .then((bot:iBot)=>{
+
             return new Promise((resolve, reject)=>{
-                this.sm.app.redis.clients.chaoscraft.srem('/active_bots', this.bot.username, (err)=>{
+                this.sm.app.redis.clients.chaoscraft.srem('/active_bots', bot.username, (err)=>{
                     if(err){
                         return reject(err);
                     }
