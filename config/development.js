@@ -1,5 +1,6 @@
 const path = require('path');
 module.exports = {
+    port: 3000,
     search:{
         result_cache_duration:1,
         display_debug: true

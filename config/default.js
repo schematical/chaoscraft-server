@@ -1,10 +1,14 @@
 module.exports = {
     port: 80,
+    brain:{
+        length: 50,
+        maxChainLength:  10
+    },
     redis:{
         chaoscraft: {
             port: 6379,
             host:  'slack-tools.bdzyjf.0001.use1.cache.amazonaws.com',
-            prefix: 'chaoscraftx:'
+            prefix: 'chaoscraft:'
         }
     },
     mongo:{

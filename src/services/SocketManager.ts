@@ -32,14 +32,10 @@ class SocketManager{
         });
 
 
-        /*this.app.mongo.models.chaoscraft.Bot.findOne({
-            _id: '5a9db5a109dcdf68535cb767'
+        /*this.app.mongo.models.chaoscraft.Bot.remove({
+            username: 'dimebag-darrell-0'
         }, (err:Error, bot)=>{
-            bot.username = 'roald-dahl-0';
-            bot.name = 'Roald Dahl';
-            bot.save(()=>{
-            this.debug('Update Bots', err)
-            })
+           console.error(err, bot);
 
         });*/
     }
@@ -147,7 +143,7 @@ class BotSocket{
         })
     }
     emitError(err){
-        this.sm.debug("Error:", err.message);
+        this.sm.debug("Error:", err.message, err.stack);
         return this.socket.emit('error',  { message: err.message });
     }
     onDisconnect(){
@@ -196,17 +192,21 @@ class BotSocket{
 
                 //Lets create one
                 let options = {
-                    length: 20,
-                    maxChainLength:  10
+
                 }
                 let brainMaker = new BrainMaker();
                 let brainData = brainMaker.create(options);
                 let names = fs.readFileSync(__dirname + '/../../config/names.csv').toString().split('\n')
                 let name = names[Math.floor(Math.random() * names.length)].split(',')[1];
-                let username = name.toLowerCase();
+                let parts = name.split(' ');
+                let username = parts[0].substr(0,1) + '-' + parts[1];
+                username = username.toLowerCase();
                 username = replaceall(' ', '-', username);
                 username = replaceall(',', '', username);
                 username = replaceall('.', '', username);
+                if(username.length > 15){
+                    username = username.substr(0, 15);
+                }
                 let generation = 0;
                 this.bot = this.sm.app.mongo.models.chaoscraft.Bot({
                     username: username +'-'+generation,

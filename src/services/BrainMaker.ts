@@ -7,6 +7,7 @@ import {
     NodeDependantRelationship,
     Enum
 } from 'chaoscraft-shared'
+import * as config from 'config'
 import * as MinecraftData from 'minecraft-data';
 class BrainMaker{
     protected nodeLayers:any = {}
@@ -14,6 +15,8 @@ class BrainMaker{
     protected INPUT_KEYS = null;
     protected OUTPUT_KEYS = null;
     public create(options){
+        options.length =  options.length || config.get('brain.length');
+        options.maxChainLength = options.maxChainLength || options.maxChainLengthconfig.get('brain.maxChainLength');
         let indexedNodes = {};
         this.minecraftData = MinecraftData('1.12.2');
         this.INPUT_KEYS = Object.keys(Enum.InputTypes);
@@ -111,18 +114,26 @@ class BrainMaker{
             target:{}
         }
         switch(input){
+
+            case(Enum.InputTypes.blockUpdate):
+            case(Enum.InputTypes.diggingCompleted):
+            case(Enum.InputTypes.diggingAborted):
+            case(Enum.InputTypes.blockBreakProgressEnd):
+            case(Enum.InputTypes.blockBreakProgressObserved):
+            case(Enum.InputTypes.chestLidMove):
             case(Enum.InputTypes.canSeeBlock):
-                inputNode.target = {
-                    type:'block',
-                    block: this.randBlock().id
-                }
-                break;
             case(Enum.InputTypes.canDigBlock):
                 inputNode.target = {
                     type:'block',
                     block: this.randBlock().id
                 }
                 break;
+
+            case(Enum.InputTypes.entityMoved):
+            case(Enum.InputTypes.entitySwingArm):
+            case(Enum.InputTypes.entityHurt):
+            case(Enum.InputTypes.entitySpawn):
+            case(Enum.InputTypes.entityUpdate):
             case(Enum.InputTypes.canSeeEntity):
                 inputNode.target = {
                     type:'entity',
