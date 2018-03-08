@@ -32,12 +32,12 @@ class SocketManager{
         });
 
 
-        this.app.mongo.models.chaoscraft.Bot.remove({
-            username: 'jill-eikenberry-0'
+       /* this.app.mongo.models.chaoscraft.Bot.remove({
+            //username: 'ray-charles-0'
         }, (err:Error, bot)=>{
            console.error(err, bot);
 
-        });
+        });*/
     }
     onNewConnection(socket){
         socket.join('main');
@@ -110,6 +110,7 @@ class BotSocket{
         })
         .then((bot:iBot)=>{
             return new Promise((resolve, reject)=>{
+                console.log("Removing  " +bot.username + " for not firing after 30");
                 return bot.remove((err)=>{
                     if(err){
                         return reject(err);

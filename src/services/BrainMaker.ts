@@ -135,6 +135,7 @@ class BrainMaker{
             case(Enum.InputTypes.entitySpawn):
             case(Enum.InputTypes.entityUpdate):
             case(Enum.InputTypes.canSeeEntity):
+            case(Enum.InputTypes.playerCollect):
                 inputNode.target = {
                     type:'entity',
                     entity: this.randEntity().id
