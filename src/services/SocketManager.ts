@@ -32,12 +32,12 @@ class SocketManager{
         });
 
 
-        /*this.app.mongo.models.chaoscraft.Bot.remove({
-            username: 'dimebag-darrell-0'
+        this.app.mongo.models.chaoscraft.Bot.remove({
+            username: 'jill-eikenberry-0'
         }, (err:Error, bot)=>{
            console.error(err, bot);
 
-        });*/
+        });
     }
     onNewConnection(socket){
         socket.join('main');
