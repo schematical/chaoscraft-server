@@ -2,8 +2,9 @@ module.exports = {
     port: 80,
     brain:{
         length: 20,
-        maxChainLength: 2,
-        maxDependants: 4,
+        inputNodePool:60,
+        maxChainLength: 4,
+        maxDependants: 2,
         minDependants: 2
     },
     redis:{

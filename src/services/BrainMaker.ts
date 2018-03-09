@@ -17,6 +17,8 @@ class BrainMaker{
     public create(options){
         options.length =  options.length || config.get('brain.length');
         options.maxChainLength = options.maxChainLength || config.get('brain.maxChainLength');
+        options.inputNodePool = options.inputNodePool || config.get('brain.inputNodePool');
+
         let indexedNodes = {};
         this.minecraftData = MinecraftData('1.12.2');
         this.INPUT_KEYS = Object.keys(Enum.InputTypes);
@@ -27,15 +29,20 @@ class BrainMaker{
         for(let i = 0; i < options.maxChainLength; i++){
             this.nodeLayers[i] = [];
         }
+        for(let i = 0; i < options.inputNodePool; i++){
+            let inputNode = this.randInput(i);
+            indexedNodes[inputNode.id] = inputNode;
+            this.nodeLayers.inputs.push(inputNode);
+        }
         //Setup our inputs and outputs first
         for(let i = 0; i < options.length; i++){
             //Start with an input
 
-            let inputNode = this.randInput(i);
-            indexedNodes[inputNode.id] = inputNode;
+
+
             let outputNode = this.randOutput(i);
             indexedNodes[outputNode.id] = outputNode;
-            this.nodeLayers.inputs.push(inputNode);
+
             this.nodeLayers.outputs.push(outputNode);
             this.nodeLayers[i] = [];
             for(let ii = 0; ii < options.maxChainLength; ii++){
@@ -58,7 +65,7 @@ class BrainMaker{
             let lastNode = this.nodeLayers.outputs[i];
 
 
-            function addDependant(node, currRow){
+            function addDependants(node, currRow){
                 if(!node.dependants){
                     return;
                 }
@@ -77,7 +84,7 @@ class BrainMaker{
                         if (nextNodeRow >= options.maxChainLength) {
                             nextNodeRow = 'inputs';
                         }
-                        let nextNodeIndex = Math.floor(Math.random() * this.nodeLayers[currRow].length);
+                        let nextNodeIndex = Math.floor(Math.random() * this.nodeLayers[nextNodeRow].length);
 
                         nextNode = this.nodeLayers[nextNodeRow][nextNodeIndex];
 
@@ -99,10 +106,10 @@ class BrainMaker{
                     if(nextNodeRow == 'inputs') {
                        return;
                     }
-                    addDependant.apply(this, [nextNode, nextNodeRow]);
+                    addDependants.apply(this, [nextNode, nextNodeRow]);
                 }
             }
-            addDependant.apply(this, [lastNode, 0]);
+            addDependants.apply(this, [lastNode, 0]);
 
         }
 
