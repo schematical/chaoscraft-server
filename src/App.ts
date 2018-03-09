@@ -17,7 +17,7 @@ class App{
     run(){
         this._mongo = new Mongoose();
         this._redis = new Redis();
-        this._express = express()
+        this._express = express();
 
         Routes.setup(this);
         var server = http.createServer(this.express);

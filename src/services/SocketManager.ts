@@ -47,10 +47,13 @@ class SocketManager{
         socket.on('www_hello',  (data) => {
             // we tell the client to execute 'new message'
             this.debug("WWW_HELLO hit")
-            socket.emit('www_hello_response', {
-                username: 'x',//socket.username,
-                message: data
+
+            let wwwSocket = new WWWSocket({
+                socketManager: this,
+                socket:socket
             });
+            wwwSocket.onHello(data);
+
 
         });
         socket.on('client_hello',  (data) => {
@@ -86,11 +89,17 @@ class BotSocket{
         this.socket.on('client_not_firing', (payload)=>{
             this.onClientNotFiring(payload);
         });
-        this.socket.on('client_day_1', (payload)=>{
-            this.onClientDay1(payload);
+        this.socket.on('client_day_passed', (payload)=>{
+            this.onClientDayPassed(payload);
+        });
+        this.socket.on('client_pong', (payload)=>{
+            this.onClientPong(payload);
         });
     }
-    onClientDay1(payload){
+    onClientPong(payload){
+
+    }
+    onClientDayPassed(payload){
 
     }
     onClientNotFiring(payload){
@@ -138,7 +147,11 @@ class BotSocket{
         })
     }
     onFireOutputNode(payload){
-        this.socket.broadcast.emit('client_fire_outputnode', {
+        if(!this.bot){
+            return console.error("TODO: Fix")
+        }
+        //console.log("Sending:", 'client_fire_outputnode', this.bot.username, payload)
+        this.socket./*to('www')*/broadcast.emit('client_fire_outputnode', {
             payload: payload,
             username: this.bot.username
         })
@@ -250,7 +263,14 @@ class WWWSocket{
     constructor(options:any){
         this.socket = options.socket;
         this.sm = options.socketManager;
+        this.socket.join("www");
 
+    }
+    onHello(data){
+        this.socket.emit('www_hello_response', {
+            username: 'x',//socket.username,
+            message: data
+        });
     }
 }
 export { SocketManager }

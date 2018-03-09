@@ -16,7 +16,7 @@ class BrainMaker{
     protected OUTPUT_KEYS = null;
     public create(options){
         options.length =  options.length || config.get('brain.length');
-        options.maxChainLength = options.maxChainLength || options.maxChainLengthconfig.get('brain.maxChainLength');
+        options.maxChainLength = options.maxChainLength || config.get('brain.maxChainLength');
         let indexedNodes = {};
         this.minecraftData = MinecraftData('1.12.2');
         this.INPUT_KEYS = Object.keys(Enum.InputTypes);
