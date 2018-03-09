@@ -1,8 +1,10 @@
 module.exports = {
     port: 80,
     brain:{
-        length: 50,
-        maxChainLength:  10
+        length: 20,
+        maxChainLength: 2,
+        maxDependants: 4,
+        minDependants: 2
     },
     redis:{
         chaoscraft: {

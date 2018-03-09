@@ -53,45 +53,72 @@ class BrainMaker{
 
         for(let i = 0; i < options.length; i++){
             //Start with an input
-            let safeGuard = 0;
-            let currRow = 0;
+
+
             let lastNode = this.nodeLayers.outputs[i];
-            let nextNodeRow = Math.round(Math.random() * (options.maxChainLength - currRow));
-            while(nextNodeRow == options.maxChainLength){
-                safeGuard += 1;
 
-                currRow += nextNodeRow;
-                let nextNodeIndex = Math.floor(Math.random() * this.nodeLayers[currRow].length);
-                console.log('currRow',currRow, 'nextNodeIndex',nextNodeIndex);
 
-                let nextNode = this.nodeLayers[currRow][nextNodeIndex];
-                lastNode.dependants.push({
-                    id:nextNode.id,
-                    weight: null
-                })
-                lastNode = nextNode;
-                nextNodeRow = Math.round(Math.random() * (options.maxChainLength - currRow));
-                if(safeGuard >= 100){
-                    throw new Error("Infinite Loop");
+            function addDependant(node, currRow){
+                if(!node.dependants){
+                    return;
                 }
+                if(node.dependants.length >= <number>config.get('brain.maxDependants')){
+                    return;
+                }
+                let dependantCount:number = Math.floor(Math.random() * (<number>config.get('brain.maxDependants') - <number>config.get('brain.maxDependants'))) + <number>config.get('brain.maxDependants');
+                for(let ii = 0; ii < dependantCount; ii ++){
+                    let foundNodeWithNotManyDependants = false;
+                    let nextNode = null;
+                    let safeGuard = 0;
+                    let nextNodeRow: any = null;
+                    while(!foundNodeWithNotManyDependants) {
+                        let est = Math.round(Math.random() * (options.maxChainLength - currRow)) + 1;
+                        nextNodeRow = est + currRow;
+                        if (nextNodeRow >= options.maxChainLength) {
+                            nextNodeRow = 'inputs';
+                        }
+                        let nextNodeIndex = Math.floor(Math.random() * this.nodeLayers[currRow].length);
 
+                        nextNode = this.nodeLayers[nextNodeRow][nextNodeIndex];
+
+
+                        safeGuard +=1;
+                        if(safeGuard > 100){
+                            console.error("Exiting out Safe Guard");
+                            return
+                        }
+                        foundNodeWithNotManyDependants = true;//TODO: Remove Hack
+                    }
+
+                    node.dependants.push({
+                        id:nextNode.id,
+                        weight: null
+                    })
+
+
+                    if(nextNodeRow == 'inputs') {
+                       return;
+                    }
+                    addDependant.apply(this, [nextNode, nextNodeRow]);
+                }
             }
-            let inputIndex = Math.floor(Math.random() * this.nodeLayers.inputs.length);
-            let inputNode = this.nodeLayers.inputs[inputIndex];
-            lastNode.dependants.push({
-                id:inputNode.id,
-                weight: null
-            });
+            addDependant.apply(this, [lastNode, 0]);
 
         }
 
+
+
         let brainData = {};
+
         //Put all outputs but only the inputs and middles that are depended on
         function addNode(node){
+
+
             brainData[node.id] = node;
             if(!node.dependants){
                return ;
             }
+
             node.dependants.forEach((dependant)=>{
                 brainData[indexedNodes[dependant.id].id] = indexedNodes[dependant.id];
                 addNode(brainData[indexedNodes[dependant.id].id]);
@@ -186,16 +213,16 @@ class BrainMaker{
         return outputNode;
     }
     randBlock(){
-        return this.minecraftData.blocksArray[Math.round(Math.random() * this.minecraftData.blocksArray.length)];
+        return this.minecraftData.blocksArray[Math.floor(Math.random() * this.minecraftData.blocksArray.length)];
     }
     randItem(){
-        return this.minecraftData.itemsArray[Math.round(Math.random() * this.minecraftData.itemsArray.length)];
+        return this.minecraftData.itemsArray[Math.floor(Math.random() * this.minecraftData.itemsArray.length)];
     }
     randEntity(){
-        return this.minecraftData.entitiesArray[Math.round(Math.random() * this.minecraftData.entitiesArray.length)];
+        return this.minecraftData.entitiesArray[Math.floor(Math.random() * this.minecraftData.entitiesArray.length)];
     }
     randRecipe(){
-        return this.minecraftData.recipes[Math.round(Math.random() * this.minecraftData.recipes.length)];
+        return this.minecraftData.recipes[Math.floor(Math.random() * this.minecraftData.recipes.length)];
     }
 }
 export { BrainMaker }

@@ -44,8 +44,8 @@ class Routes{
         app.express.get('/', (req, res) => res.send('Hello World!'));
         app.express.get('/brains/test', (req, res, next) => {
             let options = {
-                length: req.body.length || 100,
-                maxChainLength: req.body.maxChainLength || 10
+                length: req.body.length || null,
+                maxChainLength: req.body.maxChainLength || null
             }
             let brainMaker = new BrainMaker();
             let brainData = brainMaker.create(options);
@@ -54,8 +54,8 @@ class Routes{
         app.express.post('/bots', (req, res, next) => {
             //Load a brain
             let options = {
-                length: req.body.length || 100,
-                maxChainLength: req.body.maxChainLength || 10
+                length: req.body.length || null,
+                maxChainLength: req.body.maxChainLength || null
             }
             let brainMaker = new BrainMaker();
             let brainData = brainMaker.create(options);
