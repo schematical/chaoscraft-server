@@ -5,7 +5,8 @@ module.exports = {
         inputNodePool:60,
         maxChainLength: 4,
         maxDependants: 2,
-        minDependants: 2
+        minDependants: 2,
+        maxTargets: 10
     },
     redis:{
         chaoscraft: {

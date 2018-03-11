@@ -159,7 +159,10 @@ class BrainMaker{
             case(Enum.InputTypes.canDigBlock):
                 inputNode.target = {
                     type:'block',
-                    block: this.randBlock().id
+                    block: []//this.randBlock().id
+                }
+                for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                    inputNode.target.block.push(this.randBlock().id);
                 }
                 break;
 
@@ -172,20 +175,31 @@ class BrainMaker{
             case(Enum.InputTypes.playerCollect):
                 inputNode.target = {
                     type:'entity',
-                    entity: this.randEntity().id
+                    entityTypes: []
+                }
+                for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                    inputNode.target.entityTypes.push(this.randEntity().id);
                 }
                 break;
 
             case(Enum.InputTypes.hasInInventory):
+
+
                 if(Math.round(Math.random()) == 0){
                     inputNode.target = {
                         type:'item',
-                        item: this.randItem().id
+                        item: []//this.randItem().id
+                    }
+                    for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                        inputNode.target.item.push(this.randItem().id);
                     }
                 }else{
                     inputNode.target = {
                         type:'block',
-                        block: this.randBlock().id
+                        block: []//this.randBlock().id
+                    }
+                    for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                        inputNode.target.block.push(this.randBlock().id);
                     }
                 }
 

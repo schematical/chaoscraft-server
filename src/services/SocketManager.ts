@@ -5,8 +5,9 @@ import { iBot } from '../models/Bot';
 import { App } from '../App'
 import * as fs from 'fs'
 import { BrainMaker } from '../services/BrainMaker'
-
+import * as config from 'config'
 import * as replaceall from 'replaceall'
+import * as SocketRedis from 'socket.io-redis'
 class SocketManager{
     public debug = null;
     protected socket:SocketIO.Server = null;
@@ -25,14 +26,17 @@ class SocketManager{
                  cookie: false*/
             }
         );
-
+        this.socket.adapter(SocketRedis({
+            host: config.get('redis.chaoscraft.host'),
+            port: config.get('redis.chaoscraft.port')
+        }));
 
         this.socket.on('connection',  (socket)=> {
             this.onNewConnection(socket)
         });
 
-
-       /* this.app.mongo.models.chaoscraft.Bot.remove({
+/*
+        this.app.mongo.models.chaoscraft.Bot.remove({
             //username: 'ray-charles-0'
         }, (err:Error, bot)=>{
            console.error(err, bot);
@@ -86,9 +90,12 @@ class BotSocket{
         this.socket.on('client_fire_outputnode', (payload)=>{
             this.onFireOutputNode(payload);
         });
-        this.socket.on('client_not_firing', (payload)=>{
-            this.onClientNotFiring(payload);
+        this.socket.on('client_pong', (payload)=>{
+            this.onClientPong(payload);
         });
+       /* this.socket.on('client_not_firing', (payload)=>{
+            this.onClientNotFiring(payload);
+        });*/
         this.socket.on('client_day_passed', (payload)=>{
             this.onClientDayPassed(payload);
         });
@@ -96,10 +103,17 @@ class BotSocket{
             this.onClientPong(payload);
         });
     }
-    onClientPong(payload){
+
+    onClientDayPassed(payload){
 
     }
-    onClientDayPassed(payload){
+    onClientPong(payload){
+        //TODO: Run the fittness function
+        this.socket.to('www').emit('client_pong', payload);
+        if(payload.distanceTraveled > 10){
+            return;
+        }
+        return this.onClientNotFiring(payload);
 
     }
     onClientNotFiring(payload){
@@ -161,6 +175,9 @@ class BotSocket{
         return this.socket.emit('error',  { message: err.message });
     }
     onDisconnect(){
+        if(!this.bot){
+            return;
+        }
         this.sm.app.redis.clients.chaoscraft.srem('/active_bots', this.bot.username, (err)=>{
             if(err){
                 return this.emitError(err);
