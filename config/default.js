@@ -6,7 +6,9 @@ module.exports = {
         maxChainLength: 4,
         maxDependants: 2,
         minDependants: 2,
-        maxTargets: 10
+        maxTargets: 10,
+        passOnDecay: .2,//The amount of nodes to lose
+        passOnAdd: .4//The percentage of nodes to add on
     },
     redis:{
         chaoscraft: {

@@ -102,19 +102,74 @@ class BotSocket{
         this.socket.on('client_pong', (payload)=>{
             this.onClientPong(payload);
         });
+        this.socket.on('client_node_error_threshold_hit', (payload)=>{
+            this.onNodeErrorThresholdHit(payload);
+        });
     }
+    markActive(payload){
+        return new Promise((resolve, reject)=>{
+            this.sm.app.redis.clients.chaoscraft.srem('/active_bots', payload.username, (err)=>{
+                if(err){
+                    return reject(err);
+                }
+                return resolve();
+            });
+        })
+        .then(()=>{
+            return new Promise((resolve, reject)=>{
+                this.sm.app.redis.clients.chaoscraft.multi()
+                    .set('/bots/' + payload.username + '/active', true)
+                    .ttl('/bots/' + payload.username + '/active', 60)
+                    .exec((err)=>{
+                    if(err){
+                        return reject(err);
+                    }
+                    return resolve();
+                });
+            })
+        })
+    }
+    onNodeErrorThresholdHit(payload){
 
+    }
     onClientDayPassed(payload){
 
     }
     onClientPong(payload){
+
         //TODO: Run the fittness function
         this.socket.to('www').emit('client_pong', payload);
         if(payload.distanceTraveled > 10){
-            return;
+            return this.spawnChildren(payload);
         }
         return this.onClientNotFiring(payload);
 
+    }
+    spawnChildren(payload){
+        let p = new Promise((resolve, reject)=>{
+
+            return this.sm.app.mongo.models.chaoscraft.Bot.findOne({
+                username: payload.username
+            }, (err:Error, bot:iBot)=>{
+                if(err) {
+                    return reject(err);
+                }
+                this.bot = bot;
+                return resolve(bot);
+            })
+
+        })
+        .then((bot:iBot)=>{
+            return new Promise((resolve, reject)=>{
+                console.log("Removing  " +bot.username + " for not firing after 30");
+                return bot.remove((err)=>{
+                    if(err){
+                        return reject(err);
+                    }
+                    return resolve(bot);
+                })
+            })
+        })
     }
     onClientNotFiring(payload){
         //Delete the user?
@@ -185,35 +240,19 @@ class BotSocket{
         });
     }
     onHello(data){
-        let p = new Promise((resolve, reject)=>{
-            if(data.username){
+        let p = new Promise((resolve, reject)=> {
+            if (data.username) {
                 return this.sm.app.mongo.models.chaoscraft.Bot.findOne({
                     username: data.username
-                }, (err:Error, bot:iBot)=>{
-                    if(err) {
+                }, (err: Error, bot: iBot) => {
+                    if (err) {
                         throw err;
                     }
                     this.bot = bot;
                     return resolve(bot);
                 })
             }
-            //Load any bots on deck
-            return this.sm.app.redis.clients.chaoscraft.smembers('/active_bots', (err, usernames)=>{
-                if(err) return reject(err);
-                return this.sm.app.mongo.models.chaoscraft.Bot.findOne({
-                    username: {
-                        $nin: usernames
-                    }
-                }, (err:Error, bot:iBot)=>{
-                    if(err) {
-                        throw err;
-                    }
-                    this.bot = bot;
-                    return resolve(bot);
-                })
-            })
-
-
+            return this.getInActiveUser();
         })
         .then((bot)=>{
             if(bot){
@@ -271,6 +310,43 @@ class BotSocket{
         })
         .catch((err)=>{
            this.emitError(err);
+        })
+    }
+    getInActiveUser(){
+        return new Promise((resolve, reject)=> {
+            //Load any bots on deck
+            return this.sm.app.redis.clients.chaoscraft.smembers('/active_bots', (err, usernames)=>{
+                if(err) return reject(err);
+                return resolve(usernames);
+            })
+        })
+        .then((usernames:any)=>{
+            return new Promise((resolve, reject)=>{
+                let multi = this.sm.app.redis.clients.chaoscraft.multi();
+                usernames.forEach((username)=>{
+                    multi.get('/bots/' + username + '/active');
+                });
+                multi.exec((err, results)=>{
+                    if(err) return reject(err);
+                    let queryUsernames = [];
+                    usernames.forEach((username, index)=> {
+                        if(results[index]){
+                            queryUsernames.push(username);
+                        }
+                    });
+                    return this.sm.app.mongo.models.chaoscraft.Bot.findOne({
+                        username: {
+                            $nin: queryUsernames
+                        }
+                    }, (err:Error, bot:iBot)=>{
+                        if(err) {
+                            throw err;
+                        }
+                        this.bot = bot;
+                        return resolve(bot);
+                    })
+                })
+            })
         })
     }
 }
