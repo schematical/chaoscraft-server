@@ -244,6 +244,8 @@ class BotSocket{
         });
     }
     onRequestNewBrain(payload){
+        payload._old_username = payload.username;
+        payload.username = null;
         this.onHello(payload);
     }
     onHello(data){
