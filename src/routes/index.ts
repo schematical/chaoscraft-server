@@ -1,6 +1,6 @@
 import { iBot } from '../models/Bot';
 import { App } from '../App';
-import * as fs from 'fs';
+import * as _ from 'underscore';
 import * as errorHandler from 'errorhandler';
 import * as bodyParser from 'body-parser';
 import { BrainMaker } from '../services/BrainMaker'
@@ -73,14 +73,23 @@ class Routes{
         })
         app.express.get('/bots', (req, res, next) => {
             //Load a brain
-            return app.mongo.models.chaoscraft.Bot.find({
-                //_id: req.param('id')
-            }, (err:Error, brains:Array<iBot>)=>{
-                if(err) {
-                    return next(err);
+
+            let query:any ={ }
+            if(_.isUndefined(req.query.alive) || req.query.alive){
+                query.alive =  true;
+            }else{
+                query.alive = false;
+            }
+
+            return app.mongo.models.chaoscraft.Bot.find(
+                query,
+                (err:Error, brains:Array<iBot>)=>{
+                    if(err) {
+                        return next(err);
+                    }
+                    return res.json(brains);
                 }
-                return res.json(brains);
-            })
+            )
         })
 
         app.express.get('/bots/active', (req, res, next) => {

@@ -35,8 +35,7 @@ class SocketManager{
             this.onNewConnection(socket)
         });
 
-/*
-        this.app.mongo.models.chaoscraft.Bot.remove({
+/*        this.app.mongo.models.chaoscraft.Bot.remove({
             //username: 'ray-charles-0'
         }, (err:Error, bot)=>{
            console.error(err, bot);
@@ -46,8 +45,14 @@ class SocketManager{
     onNewConnection(socket){
         socket.join('main');
         this.debug("New bot connected");
-
+        socket.emit('request_handshake', {});
         // when the client emits 'new message', this listens and executes
+        socket.on('www_handshake', (data) => {
+            let wwwSocket = new WWWSocket({
+                socketManager: this,
+                socket:socket
+            });
+        });
         socket.on('www_hello',  (data) => {
             // we tell the client to execute 'new message'
             this.debug("WWW_HELLO hit")
@@ -59,6 +64,13 @@ class SocketManager{
             wwwSocket.onHello(data);
 
 
+        });
+        socket.on('client_handshake', (data) => {
+            let botSocket = new BotSocket({
+                socketManager: this,
+                socket: socket
+            });
+            botSocket.onHandshake(data);
         });
         socket.on('client_hello',  (data) => {
             let botSocket = new BotSocket({
@@ -106,13 +118,16 @@ class BotSocket{
         this.socket.on('client_request_new_brain', (payload)=>{
             this.onRequestNewBrain(payload);
         })
+        this.socket.on('client_spawn_complete', (payload)=>{
+            this.onClientSpawnComplete(payload);
+        })
     }
     markActive(payload){
 
 
         return new Promise((resolve, reject)=>{
             this.sm.app.redis.clients.chaoscraft.multi()
-                .sadd('/active_bots', this.bot.username)
+                .sadd('/active_bots', payload.username)
                 .set('/bots/' + payload.username + '/active', true)
                 .expire('/bots/' + payload.username + '/active', 5 * 60)
                 .exec((err)=>{
@@ -133,15 +148,36 @@ class BotSocket{
 
     }
     onClientPong(payload){
-        console.log("Pong recived: ", payload.username);
+        this.sm.debug("Pong recived: ", payload.username, "distanceTraveled", payload.distanceTraveled);
         this.markActive(payload);
 
-        //TODO: Run the fittness function
+
         this.socket.to('www').emit('client_pong', payload);
-        if(payload.distanceTraveled > 10){
-            return //this.spawnChildren(payload);
+
+        if(payload.distanceTraveled < 10) {
+            return this.onClientNotFiring(payload);
         }
-        return this.onClientNotFiring(payload);
+        let multi = this.sm.app.redis.clients.chaoscraft.multi()
+        //TODO: Run the fittness function
+let nodeInfo = payload.nodeInfo;
+        delete(payload.nodeInfo);
+
+        multi.hmset( '/bots/' + this.bot.username + '/position', 'x', payload.position.x);
+        multi.hmset( '/bots/' + this.bot.username + '/position', 'y', payload.position.y);
+        multi.hmset( '/bots/' + this.bot.username + '/position', 'z', payload.position.z);
+        delete(payload.position);
+        Object.keys(payload).forEach((key)=>{
+            multi.hmset( '/bots/' + this.bot.username + '/pong', key, payload[key]);
+        })
+
+
+        multi.exec((err)=>{
+            if(err){
+                return this.emitError(err);
+            }
+        });
+        return //this.spawnChildren(payload);
+
 
     }
     spawnChildren(payload){
@@ -193,7 +229,8 @@ class BotSocket{
         .then((bot:iBot)=>{
             return new Promise((resolve, reject)=>{
                 console.log("Removing  " +payload.username + " for not firing after 30");
-                return bot.remove((err)=>{
+                bot.alive = false;
+                return bot.save((err)=>{
                     if(err){
                         return reject(err);
                     }
@@ -220,18 +257,19 @@ class BotSocket{
         })
     }
     onFireOutputNode(payload){
-        if(!this.bot){
-            return console.error("TODO: Fix")
+
+        if(!payload.username){
+            return this.sm.debug('No username passed in to `onFireOutputNode`');
         }
         //console.log("Sending:", 'client_fire_outputnode', this.bot.username, payload)
-        this.socket./*to('www')*/broadcast.emit('client_fire_outputnode', {
+        this.socket.to('www')/*broadcast*/.emit('client_fire_outputnode', {
             payload: payload,
-            username: this.bot.username
+            username: payload.username
         })
     }
     emitError(err){
         this.sm.debug("Error:", err.message, err.stack);
-        return this.socket.emit('error',  { message: err.message });
+        return this.socket.emit('server_error',  { message: err.message });
     }
     onDisconnect(){
         if(!this.bot){
@@ -248,8 +286,33 @@ class BotSocket{
         payload.username = null;
         this.onHello(payload);
     }
+    onHandshake(data){
+        if (!data.username) {
+            return this.emitError(new Error("No valid username submitted"));
+
+        }
+        return new Promise((resolve, reject) => {
+            return this.sm.app.mongo.models.chaoscraft.Bot.findOne({
+                username: data.username
+            }, (err: Error, bot: iBot) => {
+                if (err) {
+                    return reject(err);
+                }
+                this.bot = bot;
+                return resolve(bot);
+            })
+
+
+        })
+        .then(()=>{
+            this.sm.debug(this.bot.username + " - Successfully Reconnected and Handshake");
+        })
+        .catch((err)=>{
+            return  this.emitError(err)
+        })
+
+    }
     onHello(data){
-        console.log("HELLO:");
         let p = null;
         if (data.username) {
             p = new Promise((resolve, reject) => {
@@ -286,7 +349,7 @@ class BotSocket{
                 let parts = name.split(' ');
                 let username = null;
                 if(parts.length == 1){
-                    username = parts[1];
+                    username = parts[0];
                 }else{
                     username = parts[0].substr(0,1) + '-' + parts[1];
                 }
@@ -333,9 +396,33 @@ class BotSocket{
             console.log('Sending -client_hello_response', this.bot.username);
             return this.socket.emit('client_hello_response', this.bot.toJSON());
         })
+        .then(()=>{
+            return this.socket.to('www').emit('client_hello', this.bot.toJSON());
+        })
         .catch((err)=>{
            this.emitError(err);
         })
+    }
+    onClientSpawnComplete(payload){
+        return new Promise((resolve, reject)=>{
+            let multi = this.sm.app.redis.clients.chaoscraft.multi()
+            multi.hmset( '/bots/' + this.bot.username + '/position', 'x', payload.startPosition.x);
+            multi.hmset( '/bots/' + this.bot.username + '/position', 'y', payload.startPosition.y);
+            multi.hmset( '/bots/' + this.bot.username + '/position', 'z', payload.startPosition.z);
+            delete(payload.startPosition);
+            Object.keys(payload).forEach((key)=>{
+                multi.set( '/bots/' + payload.username + '/spawn_data', key, payload[key]);
+            })
+            multi.exec((err)=>{
+                (err)=>{
+                    if(err){
+                        return reject(err);
+                    }
+                    return resolve();
+                }
+            });
+
+        });
     }
     getInActiveUser(){
         return new Promise((resolve, reject)=> {
@@ -362,7 +449,8 @@ class BotSocket{
                     return this.sm.app.mongo.models.chaoscraft.Bot.findOne({
                         username: {
                             $nin: queryUsernames
-                        }
+                        },
+                        alive: true
                     }, (err:Error, bot:iBot)=>{
                         if(err) {
                             return reject(err);

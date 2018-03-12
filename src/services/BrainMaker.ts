@@ -227,6 +227,9 @@ class BrainMaker{
             dependants:[]
         }
         switch(output) {
+            case(Enum.OutputTypes.navigateTo):
+                outputNode.type = Enum.OutputTypes.walkForward;
+            break;
             case(Enum.OutputTypes.equip):
                 outputNode.destination = 'hand';
             break;

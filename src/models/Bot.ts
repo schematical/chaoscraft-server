@@ -14,14 +14,28 @@ var BotSchema: Schema = new Schema({
     father:{
         type: Schema.Types.ObjectId,
         ref: 'Brain'
+    },
+    alive: {
+        type: Boolean,
+        default: true
+    },
+    notes:{
+        type: String
+    },
+    achivements:{
+        type:Schema.Types.Mixed,
+        defaut: {
+            being_born: 1
+        }
     }
 });
-
-/*BotSchema.options.toObject.transform = function (doc, ret, options) {
+let options = (<any>BotSchema).options;
+options.toObject = options.toObject || {};
+options.toObject.transform = function (doc, ret, options) {
     // remove the _id of every document before returning the result
-    delete ret._id;
+    delete ret.brain;
     return ret;
-}*/
+}
 
 BotSchema.pre("save", function(next) {
     if (!this.createdAt) {
@@ -38,6 +52,9 @@ interface iBot extends Document {
     age: Number,
     mother?: Schema.Types.ObjectId;
     father?: Schema.Types.ObjectId;
+    alive:boolean;
+    notes:string,
+    achivements:any
 }
 
 export {
