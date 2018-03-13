@@ -231,6 +231,7 @@ let nodeInfo = payload.nodeInfo;
                 console.log("Removing  " +payload.username + " for not firing after 30");
                 bot.alive = false;
                 return bot.save((err)=>{
+                    console.log("Removing  " +payload.username + " SAVED - ", err, bot && bot.toJSON());
                     if(err){
                         return reject(err);
                     }
@@ -357,8 +358,8 @@ let nodeInfo = payload.nodeInfo;
                 username = replaceall(' ', '-', username);
                 username = replaceall(',', '', username);
                 username = replaceall('.', '', username);
-                if(username.length > 15){
-                    username = username.substr(0, 15);
+                if(username.length > 14){
+                    username = username.substr(0, 14);
                 }
                 let generation = 0;
                 this.bot = this.sm.app.mongo.models.chaoscraft.Bot({
