@@ -1,4 +1,4 @@
-import * as express from 'express';
+import * as _ from 'underscore';
 import * as Socket from 'socket.io'
 import * as debug from 'debug';
 import { iBot } from '../models/Bot';
@@ -157,30 +157,9 @@ class BotSocket{
         if(payload.distanceTraveled < 10) {
             return this.onClientNotFiring(payload);
         }
-        let multi = this.sm.app.redis.clients.chaoscraft.multi()
+
         //TODO: Run the fittness function
-let nodeInfo = payload.nodeInfo;
-        delete(payload.nodeInfo);
 
-        multi.hmset( '/bots/' + this.bot.username + '/position', 'x', payload.position.x);
-        multi.hmset( '/bots/' + this.bot.username + '/position', 'y', payload.position.y);
-        multi.hmset( '/bots/' + this.bot.username + '/position', 'z', payload.position.z);
-        delete(payload.position);
-        Object.keys(payload).forEach((key)=>{
-            multi.hmset( '/bots/' + this.bot.username + '/pong', key, payload[key]);
-        })
-
-
-        multi.exec((err)=>{
-            if(err){
-                return this.emitError(err);
-            }
-        });
-        return //this.spawnChildren(payload);
-
-
-    }
-    spawnChildren(payload){
         return new Promise((resolve, reject)=>{
 
             return this.sm.app.mongo.models.chaoscraft.Bot.findOne({
@@ -194,17 +173,105 @@ let nodeInfo = payload.nodeInfo;
             })
 
         })
-        /*.then((bot:iBot)=>{
-            return new Promise((resolve, reject)=>{
-                console.log("Removing  " +bot.username + " for not firing after 30");
-                return bot.remove((err)=>{
-                    if(err){
+        .then(()=>{
+
+            return  new Promise((resolve, reject)=> {
+                let _payload = _.clone(payload);
+                delete(_payload.nodeInfo);
+
+                let multi = this.sm.app.redis.clients.chaoscraft.multi();
+
+                multi.hmset('/bots/' + this.bot.username + '/position', 'x', _payload.position.x);
+                multi.hmset('/bots/' + this.bot.username + '/position', 'y', _payload.position.y);
+                multi.hmset('/bots/' + this.bot.username + '/position', 'z', _payload.position.z);
+                delete(_payload.position);
+                Object.keys(_payload).forEach((key) => {
+                    multi.hmset('/bots/' + this.bot.username + '/pong', key, _payload[key]);
+                })
+
+
+                multi.exec((err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    return resolve();
+                });
+            });
+
+        })
+
+        .then(()=>{
+            return this.updateBrainWithNodeData(payload);
+        })
+        .then(()=>{
+            return this.spawnChildren(payload);
+        })
+        .catch((err)=>{
+            return this.emitError(err);
+        })
+
+    }
+    updateBrainWithNodeData(payload){
+        return new Promise((resolve, reject)=>{
+            let brain = JSON.parse(this.bot.brain);
+            Object.keys(payload.nodeInfo).forEach((nodeId)=>{
+                let nodeInfo = payload.nodeInfo[nodeId];
+                if(nodeInfo.activationCount == 0){
+                    delete(brain[nodeId]);
+                }
+            })
+
+            this.bot.brain = JSON.stringify(brain);
+            return this.bot.save((err:Error, bot:iBot)=>{
+                if(err) {
+                    return reject(err);
+                }
+                this.bot = bot;
+                return resolve(bot);
+            })
+
+        })
+    }
+    spawnChildren(payload){
+        let options = {
+            brainData: JSON.parse(this.bot.brain),
+            generation: this.bot.generation
+        }
+        let brainMaker = new BrainMaker();
+        let brainData = brainMaker.create(options);
+
+        let parts = this.bot.username.split('-');
+        let generationAndHeritage = parts.pop();
+        let usernameBase = parts.join('-');
+        if(usernameBase.length + generationAndHeritage.length > 14){
+            usernameBase = usernameBase.substr(0, 14 - generationAndHeritage.length);
+        }
+        let generation = this.bot.generation += 1;
+        let alphabet = 'abcdefghijklmnopqrstuvwxyz';
+        let promises = [];
+        for(let i = 0; i < config.get('brain.max_litter_size'); i++){
+            promises.push(new Promise((resolve, reject)=>{
+
+
+                this.bot = this.sm.app.mongo.models.chaoscraft.Bot({
+                    username: usernameBase +'-'+generationAndHeritage + alphabet.substr(i, 1),
+                    name:this.bot.name,
+                    brain: JSON.stringify(brainData),
+                    generation:generation,
+                    mother: this.bot._id
+                })
+                return this.bot.save((err:Error, bot:iBot)=>{
+                    if(err) {
                         return reject(err);
                     }
                     return resolve(bot);
+
                 })
-            })
-        })*/
+            }))
+        }
+        return Promise.all(promises);
+
+
     }
     onClientNotFiring(payload){
         //Delete the user?

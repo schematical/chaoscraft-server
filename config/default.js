@@ -8,7 +8,8 @@ module.exports = {
         minDependants: 2,
         maxTargets: 10,
         passOnDecay: .2,//The amount of nodes to lose
-        passOnAdd: .4//The percentage of nodes to add on
+        passOnAdd: .4,//The percentage of nodes to add on
+        max_litter_size: 20
     },
     redis:{
         chaoscraft: {

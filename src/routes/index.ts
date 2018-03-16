@@ -42,13 +42,18 @@ class Routes{
             return next();
         })
         app.express.get('/', (req, res) => res.send('Hello World!'));
-        app.express.get('/brains/test', (req, res, next) => {
+        app.express.get('/bots/:bot/test', (req, res, next) => {
+            if(!req.params._bot){
+                return res.status(404).json({});
+            }
             let options = {
-                length: req.body.length || null,
-                maxChainLength: req.body.maxChainLength || null
+                brainData: JSON.parse(req.params._bot.brain),
+                generation: req.params._bot.generation
             }
             let brainMaker = new BrainMaker();
             let brainData = brainMaker.create(options);
+
+
             return res.json(brainData);
         });
         app.express.post('/bots', (req, res, next) => {

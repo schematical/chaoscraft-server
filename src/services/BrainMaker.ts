@@ -16,6 +16,7 @@ class BrainMaker{
     protected OUTPUT_KEYS = null;
     public create(options){
         options.length =  options.length || config.get('brain.length');
+        options.generation = options.generation || null;
         options.maxChainLength = options.maxChainLength || config.get('brain.maxChainLength');
         options.inputNodePool = options.inputNodePool || config.get('brain.inputNodePool');
 
@@ -34,8 +35,27 @@ class BrainMaker{
             indexedNodes[inputNode.id] = inputNode;
             this.nodeLayers.inputs.push(inputNode);
         }
+
+
+
         //Setup our inputs and outputs first
-        for(let i = 0; i < options.length; i++){
+        let newMaxOutputLength = options.length;
+        let decayNodesLength = 0;
+        let  passOnAdd = <number>config.get('brain.passOnAdd');
+        let  passOnDecay = <number>config.get('brain.passOnDecay');
+        if(options.generation){
+            decayNodesLength = Math.round(options.length * Math.pow(
+                    1 + passOnDecay,
+                    options.generation
+                ));
+            newMaxOutputLength = Math.round(options.length * Math.pow(
+                1 + passOnAdd,
+                options.generation
+            )) - decayNodesLength;
+
+        }
+
+        for(let i = 0; i < newMaxOutputLength; i++){
             //Start with an input
 
 
@@ -57,8 +77,36 @@ class BrainMaker{
             }
 
         }
+        if(options.brainData){
+            //Load brain data into nodes
+            Object.keys(options.brainData).forEach((nodeId)=>{
+                let node = options.brainData[nodeId];
 
-        for(let i = 0; i < options.length; i++){
+                switch(node.base_type){
+                    case('output'):
+                        this.nodeLayers.outputs.push(node);
+                        break;
+                    case('input'):
+                        this.nodeLayers.inputs.push(node);
+                        break;
+                    case('middle'):
+                        let parts = nodeId.split('_');
+                        this.nodeLayers[parseInt(parts[1])][parseInt(parts[2])] = node;
+                        break;
+                }
+            })
+        }
+
+        for(let i = 0; i < decayNodesLength; i++){
+            //Pick random outputnodes and remove them
+            let index = Math.floor(this.nodeLayers.outputs.length * Math.random());
+            this.nodeLayers.outputs.splice(index, 1);
+            //Ideally during the final phase the dependants will be removed
+        }
+
+
+
+        for(let i = 0; i < newMaxOutputLength; i++){
             //Start with an input
 
 
