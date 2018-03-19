@@ -20,10 +20,39 @@ class BrainMaker{
         options.maxChainLength = options.maxChainLength || config.get('brain.maxChainLength');
         options.inputNodePool = options.inputNodePool || config.get('brain.inputNodePool');
 
-        let indexedNodes = {};
+        let indexedNodes = options.brainData || {};
         this.minecraftData = MinecraftData('1.12.2');
         this.INPUT_KEYS = Object.keys(Enum.InputTypes);
-        this.OUTPUT_KEYS = Object.keys(Enum.OutputTypes);
+        //this.OUTPUT_KEYS = Object.keys(Enum.OutputTypes);
+this.OUTPUT_KEYS = [
+    'dig',
+    'dig',
+    'dig',
+    'dig',
+    'dig',
+    'dig',
+    'dig',
+    'walkForward',
+    'walkBack',
+    'stopWalking',
+    'lookAt',
+    'dig',
+    'placeBlock',
+    'equip',
+    'attack',
+    //'activateItem',
+    //'deactivateItem',
+    'walkLeft',
+    'walkRight',
+    'jump',
+    //'sneak',
+    //'sprint',
+    //'clearControlStates',
+    'lookLeft',
+    'lookRight',
+    'lookUp',
+    'lookDown'
+]
         let brain:Brain = null;
         this.nodeLayers.inputs = [];
         this.nodeLayers.outputs = [];
@@ -60,10 +89,6 @@ class BrainMaker{
 
 
 
-            let outputNode = this.randOutput(i);
-            indexedNodes[outputNode.id] = outputNode;
-
-            this.nodeLayers.outputs.push(outputNode);
             this.nodeLayers[i] = [];
             for(let ii = 0; ii < options.maxChainLength; ii++){
 
@@ -103,6 +128,19 @@ class BrainMaker{
             this.nodeLayers.outputs.splice(index, 1);
             //Ideally during the final phase the dependants will be removed
         }
+        let neededOutputs = newMaxOutputLength - this.nodeLayers.outputs.length;
+
+        for(let i = 0; i < neededOutputs; i++){
+            //Start with an input
+
+
+            let outputNode = this.randOutput(i);
+            indexedNodes[outputNode.id] = outputNode;
+
+            this.nodeLayers.outputs.push(outputNode);
+
+        }
+
 
 
 
@@ -111,7 +149,9 @@ class BrainMaker{
 
 
             let lastNode = this.nodeLayers.outputs[i];
-
+            if(!lastNode){
+                return console.error("Not enough valid outputs");
+            }
 
             function addDependants(node, currRow){
                 if(!node.dependants){

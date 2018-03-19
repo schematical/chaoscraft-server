@@ -206,6 +206,10 @@ class BotSocket{
         .then(()=>{
             return this.spawnChildren(payload);
         })
+        /*.then(()=>{
+            //When they have lived long enough
+            return this.onHello({});
+        })*/
         .catch((err)=>{
             return this.emitError(err);
         })
@@ -216,7 +220,12 @@ class BotSocket{
             let brain = JSON.parse(this.bot.brain);
             Object.keys(payload.nodeInfo).forEach((nodeId)=>{
                 let nodeInfo = payload.nodeInfo[nodeId];
-                if(nodeInfo.activationCount == 0){
+                if(!brain[nodeId]){
+                    return console.error(this.bot.username + ' - has no brain nodeId: ' + nodeId)
+                }
+                brain[nodeId].activationCount =  brain[nodeId].activationCount || 0;
+                brain[nodeId].activationCount += nodeInfo.activationCount;
+                if(brain[nodeId].activationCount == 0){
                     delete(brain[nodeId]);
                 }
             })
@@ -241,7 +250,7 @@ class BotSocket{
         let brainData = brainMaker.create(options);
 
         let parts = this.bot.username.split('-');
-        let generationAndHeritage = parts.pop();
+        let generationAndHeritage = parts.pop().substr(1);
         let usernameBase = parts.join('-');
         if(usernameBase.length + generationAndHeritage.length > 14){
             usernameBase = usernameBase.substr(0, 14 - generationAndHeritage.length);
@@ -249,18 +258,19 @@ class BotSocket{
         let generation = this.bot.generation += 1;
         let alphabet = 'abcdefghijklmnopqrstuvwxyz';
         let promises = [];
-        for(let i = 0; i < config.get('brain.max_litter_size'); i++){
+        let litterSize = Math.floor(<number>config.get('brain.max_litter_size') * Math.random());
+        for(let i = 0; i < litterSize; i++){
             promises.push(new Promise((resolve, reject)=>{
-
-
-                this.bot = this.sm.app.mongo.models.chaoscraft.Bot({
-                    username: usernameBase +'-'+generationAndHeritage + alphabet.substr(i, 1),
+                this.bot.spawnCount = this.bot.spawnCount || 0;
+                this.bot.spawnCount += 1;
+                let childBot = this.sm.app.mongo.models.chaoscraft.Bot({
+                    username: usernameBase +'-'+generation + generationAndHeritage + alphabet.substr(this.bot.spawnCount, 1),
                     name:this.bot.name,
                     brain: JSON.stringify(brainData),
                     generation:generation,
                     mother: this.bot._id
                 })
-                return this.bot.save((err:Error, bot:iBot)=>{
+                return childBot.save((err:Error, bot:iBot)=>{
                     if(err) {
                         return reject(err);
                     }
@@ -269,7 +279,23 @@ class BotSocket{
                 })
             }))
         }
-        return Promise.all(promises);
+
+        return Promise.all(promises)
+            .then(()=>{
+                return new Promise((resolve, reject)=>{
+                //Update main bot to be dead
+                    this.bot.age += 1;
+                    this.bot.save((err)=>{
+                        if(err){
+                            return reject(err);
+                        }
+                    })
+                    return resolve();
+                })
+            })
+            .catch((err)=>{
+                console.error(err.message, err.stack);
+            })
 
 
     }
@@ -298,7 +324,7 @@ class BotSocket{
                 console.log("Removing  " +payload.username + " for not firing after 30");
                 bot.alive = false;
                 return bot.save((err)=>{
-                    console.log("Removing  " +payload.username + " SAVED - ", err, bot && bot.toJSON());
+                    //console.log("Removing  " +payload.username + " SAVED - ", err, bot && bot.toJSON());
                     if(err){
                         return reject(err);
                     }
@@ -490,7 +516,10 @@ class BotSocket{
                 }
             });
 
-        });
+        })
+        .catch((err)=>{
+            return  this.emitError(err)
+        })
     }
     getInActiveUser(){
         return new Promise((resolve, reject)=> {

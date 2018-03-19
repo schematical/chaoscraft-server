@@ -6,7 +6,11 @@ var BotSchema: Schema = new Schema({
     username:String,
     brain:String,
     generation:Number,
-    age:Number,
+    age:{
+        type:Number,
+        default: 0
+    },
+    spawnCount: Number,
     mother:{
         type: Schema.Types.ObjectId,
         ref: 'Brain'
@@ -49,12 +53,13 @@ interface iBot extends Document {
     username?:string;
     brain?: string;
     generation?: string;
-    age: Number,
+    age: number,
     mother?: Schema.Types.ObjectId;
     father?: Schema.Types.ObjectId;
     alive:boolean;
     notes:string,
-    achivements:any
+    achivements:any,
+    spawnCount:number
 }
 
 export {

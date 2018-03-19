@@ -1,15 +1,15 @@
 module.exports = {
     port: 80,
     brain:{
-        length: 20,
+        length: 10,
         inputNodePool:60,
         maxChainLength: 4,
         maxDependants: 2,
         minDependants: 2,
         maxTargets: 10,
         passOnDecay: .2,//The amount of nodes to lose
-        passOnAdd: .4,//The percentage of nodes to add on
-        max_litter_size: 20
+        passOnAdd: .2,//The percentage of nodes to add on
+        max_litter_size: 6
     },
     redis:{
         chaoscraft: {
