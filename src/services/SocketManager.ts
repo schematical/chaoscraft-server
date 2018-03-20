@@ -95,7 +95,7 @@ class BotSocket{
         this.socket = options.socket;
         this.sm = options.socketManager;
 
-
+        this.socket.join('clients');
         this.socket.on('disconnect', ()=>{
             this.onDisconnect();
         });
@@ -129,7 +129,7 @@ class BotSocket{
             this.sm.app.redis.clients.chaoscraft.multi()
                 .sadd('/active_bots', payload.username)
                 .set('/bots/' + payload.username + '/active', true)
-                .expire('/bots/' + payload.username + '/active', 5 * 60)
+                .expire('/bots/' + payload.username + '/active', 1 * 60)
                 .exec((err)=>{
                 if(err){
                     return reject(err);
@@ -155,7 +155,14 @@ class BotSocket{
         this.socket.to('www').emit('client_pong', payload);
 
         if(payload.distanceTraveled < 10) {
-            return this.onClientNotFiring(payload);
+            switch(payload.username){
+                case('j-otis-0'):
+                case('adam-0'):
+                    break;
+                default:
+                    return this.onClientNotFiring(payload);
+            }
+
         }
 
         //TODO: Run the fittness function
@@ -180,11 +187,16 @@ class BotSocket{
                 delete(_payload.nodeInfo);
 
                 let multi = this.sm.app.redis.clients.chaoscraft.multi();
-
-                multi.hmset('/bots/' + this.bot.username + '/position', 'x', _payload.position.x);
-                multi.hmset('/bots/' + this.bot.username + '/position', 'y', _payload.position.y);
-                multi.hmset('/bots/' + this.bot.username + '/position', 'z', _payload.position.z);
-                delete(_payload.position);
+                if(_payload.position) {
+                    multi.hmset('/bots/' + this.bot.username + '/position', 'x', _payload.position.x);
+                    multi.hmset('/bots/' + this.bot.username + '/position', 'y', _payload.position.y);
+                    multi.hmset('/bots/' + this.bot.username + '/position', 'z', _payload.position.z);
+                    delete(_payload.position);
+                }
+                if(_payload.inventory) {
+                    multi.set('/bots/' + this.bot.username + '/inventory', JSON.stringify(_payload.inventory));
+                    delete(_payload.inventory);
+                }
                 Object.keys(_payload).forEach((key) => {
                     multi.hmset('/bots/' + this.bot.username + '/pong', key, _payload[key]);
                 })
@@ -255,8 +267,8 @@ class BotSocket{
         if(usernameBase.length + generationAndHeritage.length > 14){
             usernameBase = usernameBase.substr(0, 14 - generationAndHeritage.length);
         }
-        let generation = this.bot.generation += 1;
-        let alphabet = 'abcdefghijklmnopqrstuvwxyz';
+        let generation = this.bot.generation + 1;
+        let alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP';
         let promises = [];
         let litterSize = Math.floor(<number>config.get('brain.max_litter_size') * Math.random());
         for(let i = 0; i < litterSize; i++){
@@ -264,7 +276,7 @@ class BotSocket{
                 this.bot.spawnCount = this.bot.spawnCount || 0;
                 this.bot.spawnCount += 1;
                 let childBot = this.sm.app.mongo.models.chaoscraft.Bot({
-                    username: usernameBase +'-'+generation + generationAndHeritage + alphabet.substr(this.bot.spawnCount, 1),
+                    username: usernameBase +'-'+generation + generationAndHeritage + alphabet.substr(this.bot.spawnCount % alphabet.length, 1),
                     name:this.bot.name,
                     brain: JSON.stringify(brainData),
                     generation:generation,
@@ -321,6 +333,7 @@ class BotSocket{
         })
         .then((bot:iBot)=>{
             return new Promise((resolve, reject)=>{
+
                 console.log("Removing  " +payload.username + " for not firing after 30");
                 bot.alive = false;
                 return bot.save((err)=>{
@@ -362,6 +375,12 @@ class BotSocket{
         })
     }
     emitError(err){
+        if(err.errors){
+            err.errors.forEach((_err)=>{
+                this.emitError(_err);
+            })
+            return;
+        }
         this.sm.debug("Error:", err.message, err.stack);
         return this.socket.emit('server_error',  { message: err.message });
     }
@@ -537,18 +556,25 @@ class BotSocket{
                 });
                 multi.exec((err, results)=>{
                     if(err) return reject(err);
+                    let query:any = {};
+
                     let queryUsernames = [];
                     usernames.forEach((username, index)=> {
                         if(results[index]){
                             queryUsernames.push(username);
                         }
                     });
-                    return this.sm.app.mongo.models.chaoscraft.Bot.findOne({
-                        username: {
+                    if(!_.contains(queryUsernames, 'adam-0')){
+                        query.username = 'adam-0';
+                    }else{
+                        query.username =  {
                             $nin: queryUsernames
-                        },
-                        alive: true
-                    }, (err:Error, bot:iBot)=>{
+                        };
+                    }
+                    query.alive = true;
+
+
+                    return this.sm.app.mongo.models.chaoscraft.Bot.findOne(query, (err:Error, bot:iBot)=>{
                         if(err) {
                             return reject(err);
                         }
@@ -566,13 +592,18 @@ class WWWSocket{
         this.socket = options.socket;
         this.sm = options.socketManager;
         this.socket.join("www");
-
+        this.socket.on('www_ping', this.onPing.bind(this));
     }
     onHello(data){
         this.socket.emit('www_hello_response', {
             username: 'x',//socket.username,
             message: data
         });
+    }
+    onPing(data){
+        this.sm.debug("Reviced `www_ping`. Pinging `clients` channel");
+        this.socket.to('clients').emit('client_ping', data);
+
     }
 }
 export { SocketManager }

@@ -21,7 +21,7 @@ class BrainMaker{
         options.inputNodePool = options.inputNodePool || config.get('brain.inputNodePool');
 
         let indexedNodes = options.brainData || {};
-        this.minecraftData = MinecraftData('1.12.2');
+        this.minecraftData = MinecraftData(config.get('minecraft.version'));
         this.INPUT_KEYS = Object.keys(Enum.InputTypes);
         //this.OUTPUT_KEYS = Object.keys(Enum.OutputTypes);
 this.OUTPUT_KEYS = [
@@ -32,6 +32,8 @@ this.OUTPUT_KEYS = [
     'dig',
     'dig',
     'dig',
+    'tossStack',
+    //'equipAndPlace',
     'walkForward',
     'walkBack',
     'stopWalking',

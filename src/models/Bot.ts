@@ -10,7 +10,10 @@ var BotSchema: Schema = new Schema({
         type:Number,
         default: 0
     },
-    spawnCount: Number,
+    spawnCount: {
+        type: Number,
+        default:0
+    },
     mother:{
         type: Schema.Types.ObjectId,
         ref: 'Brain'

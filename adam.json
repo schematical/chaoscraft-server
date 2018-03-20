@@ -1,0 +1,216 @@
+{
+
+  "output2":{
+    "base_type":"output",
+
+    "type":"walkForward",
+
+    "dependants":[
+      {
+        "id":"input5",
+        "weight":1
+      }
+    ]
+  },
+
+  "input5":{
+    "base_type":"input",
+    "type":"chat",
+    "target": {
+      "value": "walk"
+    }
+
+  },
+  "input6":{
+    "base_type":"input",
+    "type":"chat",
+    "target": {
+      "value": "talk"
+    }
+  },
+  "output3":{
+    "base_type":"output",
+
+    "type":"chat",
+
+    "dependants":[
+      {
+        "id":"input6",
+        "weight":1
+      }
+    ]
+  },
+  "input7":{
+    "base_type":"input",
+    "type":"chat",
+    "target": {
+      "value": "look"
+    }
+  },
+  "output4":{
+    "base_type":"output",
+
+    "type":"lookAt",
+
+    "dependants":[
+      {
+        "id":"input7",
+        "weight":1
+      }
+    ]
+  },
+  "input8":{
+    "base_type":"input",
+    "type":"chat",
+    "target": {
+      "value": "come"
+    }
+  },
+  "output5":{
+    "base_type":"output",
+
+    "type":"navigateTo",
+
+    "dependants":[
+      {
+        "id":"input8",
+        "weight":1
+      }
+    ]
+  },
+
+
+
+
+
+
+
+  "input11":{
+    "base_type":"input",
+    "type":"hasInInventory",
+    "target":{
+      "type":"block",
+      "block":[17]
+    }
+  },
+  "output7":{
+    "base_type":"output",
+
+    "type":"equip",
+    "destination":"hand",
+    "dependants":[
+      {
+        "id":"input11"
+      }
+    ]
+  },
+
+
+
+
+
+  "input12":{
+    "base_type":"input",
+    "type":"onCorrelateAttack",
+    "target":{
+      "type":"block",
+      "block":[17]
+    }
+  },
+  "output8":{
+    "base_type":"output",
+
+    "type":"attack",
+    "dependants":[
+      {
+        "id":"input12"
+      }
+    ]
+  },
+
+
+
+  "input13":{
+    "base_type":"input",
+    "type":"canSeeBlock",
+    "target":{
+      "type":"block",
+      "block":[57]
+    }
+  },
+  "output13":{
+    "base_type":"output",
+
+    "type":"placeBlock",
+    "dependants":[
+      {
+        "id":"input13"
+      }
+    ]
+  },
+
+
+
+
+  "input14":{
+    "base_type":"input",
+    "type":"canSeeEntity",
+    "target":{
+      "type":"entity",
+      "entityType":[93, 92, 91,90]
+    }
+  },
+  "output14":{
+    "base_type":"output",
+
+    "type":"attack",
+    "dependants":[
+      {
+        "id":"input14"
+      }
+    ]
+  },
+
+
+
+  "input15":{
+    "base_type":"input",
+    "type":"hasInInventory",
+    "target":{
+      "type":"block",
+      "block":[3, 20, 91]
+    }
+  },
+  "output15":{
+    "base_type":"output",
+
+    "type":"equip",
+    "dependants":[
+      {
+        "id":"input15"
+      }
+    ]
+  },
+
+
+
+  "input16":{
+    "base_type":"input",
+    "type":"hasInInventory",
+    "target":{
+      "type":"block",
+      "block":[20,22,86]
+    }
+  },
+  "output16":{
+    "base_type":"output",
+
+    "type":"tossStack",
+    "dependants":[
+      {
+        "id":"input16"
+      }
+    ]
+  }
+
+}

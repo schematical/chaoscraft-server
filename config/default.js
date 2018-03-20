@@ -11,6 +11,9 @@ module.exports = {
         passOnAdd: .2,//The percentage of nodes to add on
         max_litter_size: 6
     },
+    minecraft:{
+        version:'1.12.2'
+    },
     redis:{
         chaoscraft: {
             port: 6379,
