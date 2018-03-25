@@ -153,19 +153,18 @@ class BotSocket{
 
 
         this.socket.to('www').emit('client_pong', payload);
-
+        switch(payload.username){
+            case('j-otis-0'):
+            case('adam-0'):
+                return;
+            default:
+        }
+        //TODO: Run the real fittness function
         if(payload.distanceTraveled < 10) {
-            switch(payload.username){
-                case('j-otis-0'):
-                case('adam-0'):
-                    break;
-                default:
-                    return this.onClientNotFiring(payload);
-            }
-
+            return this.onClientNotFiring(payload);
         }
 
-        //TODO: Run the fittness function
+
 
         return new Promise((resolve, reject)=>{
 
