@@ -211,8 +211,107 @@
         "id":"input16"
       }
     ]
-  }
+  },
 
+
+  "input17":{
+    "base_type":"input",
+    "type":"collision",
+    "target":{}
+  },
+  "output17":{
+    "base_type":"output",
+
+    "type":"dig",
+    "dependants":[
+      {
+        "id":"input17"
+      }
+    ]
+  },
+
+
+
+
+  "input18":{
+    "base_type":"input",
+    "type":"isIn",
+    "target":{
+      "type":"block",
+      "block":[8,9]
+    }
+  },
+  "output18":{
+    "base_type":"output",
+
+    "type":"jump",
+    "dependants":[
+      {
+        "id":"input18"
+      }
+    ]
+  },
+
+
+  "input19":{
+    "base_type":"input",
+    "type":"onCorrelateAttack",
+    "target":{
+      "type":"entity",
+      "entityType":"*"
+    }
+  },
+  "output19":{
+    "base_type":"output",
+
+    "type":"walkTo",
+    "dependants":[
+      {
+        "id":"input19"
+      }
+    ]
+  },
+
+
+
+  "input20":{
+    "base_type":"input",
+    "type":"canSeeBlock",
+    "target":{
+      "type":"block",
+      "block":[54]
+    }
+  },
+  "output20":{
+    "base_type":"output",
+
+    "type":"walkTo",
+    "dependants":[
+      {
+        "id":"input20"
+      }
+    ]
+  },
+
+
+  "input21":{
+    "base_type":"input",
+    "type":"canTouchBlock",
+    "target":{
+      "type":"block",
+      "block":[54]
+    }
+  },
+  "output21":{
+    "base_type":"output",
+
+    "type":"openChest",
+    "dependants":[
+      {
+        "id":"input21"
+      }
+    ]
+  }
 
 
 

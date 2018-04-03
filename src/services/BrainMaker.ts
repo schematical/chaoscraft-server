@@ -14,47 +14,49 @@ class BrainMaker{
     protected minecraftData = null;
     protected INPUT_KEYS = null;
     protected OUTPUT_KEYS = null;
+    protected indexedNodes:any = {};
     public create(options){
         options.length =  options.length || config.get('brain.length');
         options.generation = options.generation || null;
         options.maxChainLength = options.maxChainLength || config.get('brain.maxChainLength');
         options.inputNodePool = options.inputNodePool || config.get('brain.inputNodePool');
 
-        let indexedNodes = options.brainData || {};
+        this.indexedNodes = options.brainData || {};
         this.minecraftData = MinecraftData(config.get('minecraft.version'));
         this.INPUT_KEYS = Object.keys(Enum.InputTypes);
         //this.OUTPUT_KEYS = Object.keys(Enum.OutputTypes);
-this.OUTPUT_KEYS = [
-    'dig',
-    'dig',
-    'dig',
-    'dig',
-    'dig',
-    'dig',
-    'dig',
-    'tossStack',
-    //'equipAndPlace',
-    'walkForward',
-    'walkBack',
-    'stopWalking',
-    'lookAt',
-    'dig',
-    'placeBlock',
-    'equip',
-    'attack',
-    //'activateItem',
-    //'deactivateItem',
-    'walkLeft',
-    'walkRight',
-    'jump',
-    //'sneak',
-    //'sprint',
-    //'clearControlStates',
-    'lookLeft',
-    'lookRight',
-    'lookUp',
-    'lookDown'
-]
+        this.OUTPUT_KEYS = [
+            'dig',
+            'dig',
+            'dig',
+            'dig',
+            'dig',
+            'dig',
+            'dig',
+            'walkTo',
+            'tossStack',
+            //'equipAndPlace',
+            'walkForward',
+            'walkBack',
+            'stopWalking',
+            'lookAt',
+            'dig',
+            'placeBlock',
+            'equip',
+            'attack',
+            //'activateItem',
+            //'deactivateItem',
+            'walkLeft',
+            'walkRight',
+            'jump',
+            //'sneak',
+            //'sprint',
+            //'clearControlStates',
+            'lookLeft',
+            'lookRight',
+            'lookUp',
+            'lookDown'
+        ]
         let brain:Brain = null;
         this.nodeLayers.inputs = [];
         this.nodeLayers.outputs = [];
@@ -63,7 +65,7 @@ this.OUTPUT_KEYS = [
         }
         for(let i = 0; i < options.inputNodePool; i++){
             let inputNode = this.randInput(i);
-            indexedNodes[inputNode.id] = inputNode;
+            this.indexedNodes[inputNode.id] = inputNode;
             this.nodeLayers.inputs.push(inputNode);
         }
 
@@ -75,14 +77,8 @@ this.OUTPUT_KEYS = [
         let  passOnAdd = <number>config.get('brain.passOnAdd');
         let  passOnDecay = <number>config.get('brain.passOnDecay');
         if(options.generation){
-            decayNodesLength = Math.round(options.length * Math.pow(
-                    1 + passOnDecay,
-                    options.generation
-                ));
-            newMaxOutputLength = Math.round(options.length * Math.pow(
-                1 + passOnAdd,
-                options.generation
-            )) - decayNodesLength;
+            decayNodesLength = Math.round(options.length *(1 + passOnDecay));
+            newMaxOutputLength = Math.round(options.length * (1 + (passOnAdd * options.generation))) - decayNodesLength;
 
         }
 
@@ -100,7 +96,7 @@ this.OUTPUT_KEYS = [
                     "dependants":[]
                 };
                 this.nodeLayers[i].push(middleNode)
-                indexedNodes[middleNode.id] = middleNode;
+                this.indexedNodes[middleNode.id] = middleNode;
             }
 
         }
@@ -137,7 +133,7 @@ this.OUTPUT_KEYS = [
 
 
             let outputNode = this.randOutput(i);
-            indexedNodes[outputNode.id] = outputNode;
+            this.indexedNodes[outputNode.id] = outputNode;
 
             this.nodeLayers.outputs.push(outputNode);
 
@@ -204,10 +200,16 @@ this.OUTPUT_KEYS = [
         }
 
 
+        //Setup some basic instincts
+        if(!options.generation) {
+            this.setupBasicInstincts();
+        }
+
 
         let brainData = {};
 
         //Put all outputs but only the inputs and middles that are depended on
+        let indexedNodes = this.indexedNodes;
         function addNode(node){
 
 
@@ -227,7 +229,67 @@ this.OUTPUT_KEYS = [
         return brainData;
 
     }
+    setupBasicInstincts(){
 
+
+        //Jump in water
+        let inputNode:any = {
+            id:'input_' +this.nodeLayers.inputs.length,
+            base_type:'input',
+            type:Enum.InputTypes.isIn,
+            target:{
+                type:'block',
+                block:[8,9]
+            }
+        }
+        this.indexedNodes[inputNode.id] = inputNode;
+        this.nodeLayers.inputs.push(inputNode)
+
+        let outputNode:any = {
+            id:'output_' + this.nodeLayers.outputs.length,
+            base_type:'output',
+            type:'jump',
+            dependants:[{
+                id: inputNode.id
+            }]
+        }
+        this.indexedNodes[outputNode.id] = outputNode;
+        this.nodeLayers.outputs.push(outputNode)
+
+
+
+
+        //Setup Collision
+        inputNode = {
+            id:'input_' +this.nodeLayers.inputs.length,
+            base_type:'input',
+            type:Enum.InputTypes.collision,
+            target:{}
+        }
+        this.indexedNodes[inputNode.id] = inputNode;
+        this.nodeLayers.inputs.push(inputNode)
+
+
+        let KEYS = [
+            'lookLeft',
+            'lookRight',
+            'jump',
+            'dig'
+        ];
+
+
+        let outputType:string = KEYS[Math.floor(Math.random() * KEYS.length)];
+        outputNode = {
+            id:'output_' + this.nodeLayers.outputs.length,
+            base_type:'output',
+            type:outputType,
+            dependants:[{
+                id: inputNode.id
+            }]
+        }
+        this.indexedNodes[outputNode.id] = outputNode;
+        this.nodeLayers.outputs.push(outputNode)
+    }
     randInput(i){
         let inputKeyIndex = Math.floor(Math.random() * this.INPUT_KEYS.length);
         let input = this.INPUT_KEYS[inputKeyIndex];
@@ -247,6 +309,9 @@ this.OUTPUT_KEYS = [
             case(Enum.InputTypes.chestLidMove):
             case(Enum.InputTypes.canSeeBlock):
             case(Enum.InputTypes.canDigBlock):
+            case(Enum.InputTypes.canTouchBlock):
+            case(Enum.InputTypes.isOn):
+
                 inputNode.target = {
                     type:'block',
                     block: []//this.randBlock().id
@@ -255,6 +320,12 @@ this.OUTPUT_KEYS = [
                     inputNode.target.block.push(this.randBlock().id);
                 }
                 break;
+            case(Enum.InputTypes.isIn):
+                inputNode.target = {
+                    type:'block',
+                    block: [8,9]//Water
+                }
+            break;
 
             case(Enum.InputTypes.entityMoved):
             case(Enum.InputTypes.entitySwingArm):
@@ -294,7 +365,15 @@ this.OUTPUT_KEYS = [
                 }
 
                 break;
-
+            case(Enum.InputTypes.hasRecipeInInventory):
+                inputNode.target = {
+                    type:'recipe',
+                    item: []//this.randItem().id
+                }
+                for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                    inputNode.target.item.push(this.randItem().id);//We convert this to a real recipe list on the other side
+                }
+            break;
             case(Enum.InputTypes.onCorrelateAttack):
                 /*inputNode.target = {
                  type:'entity',

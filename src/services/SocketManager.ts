@@ -121,6 +121,10 @@ class BotSocket{
         this.socket.on('client_spawn_complete', (payload)=>{
             this.onClientSpawnComplete(payload);
         })
+        this.socket.on('client_death', (payload)=>{
+            this.onDeath(payload);
+        })
+
     }
     markActive(payload){
 
@@ -141,6 +145,14 @@ class BotSocket{
             this.emitError(err);
         })
     }
+    onDeath(payload){
+        switch(payload.username){
+            case('adam-0'):
+                return;
+            default:
+        }
+        return this.onClientNotFiring(payload);
+    }
     onNodeErrorThresholdHit(payload){
 
     }
@@ -154,7 +166,7 @@ class BotSocket{
 
         this.socket.to('www').emit('client_pong', payload);
         switch(payload.username){
-            case('j-otis-0'):
+            //case('j-otis-0'):
             case('adam-0'):
                 return;
             default:
@@ -174,10 +186,25 @@ class BotSocket{
                 if(err) {
                     return reject(err);
                 }
+                if(!this.bot){
+                    return reject(new Error("No bot found with `payload.username` = " + payload.username))
+                }
                 this.bot = bot;
+
                 return resolve(bot);
             })
 
+        })
+        .then(()=>{
+            return new Promise((resolve, reject)=>{
+                this.bot.age += 1;
+                this.bot.save((err)=>{
+                    if(err){
+                        return reject(err);
+                    }
+                })
+                return resolve();
+            })
         })
         .then(()=>{
 
@@ -215,12 +242,13 @@ class BotSocket{
             return this.updateBrainWithNodeData(payload);
         })
         .then(()=>{
+            //Every X pongs spawn children
+            if(this.bot.age % <number>config.get('brain.spawn_children_pong_ct') != 0){
+                return;
+            }
             return this.spawnChildren(payload);
         })
-        /*.then(()=>{
-            //When they have lived long enough
-            return this.onHello({});
-        })*/
+
         .catch((err)=>{
             return this.emitError(err);
         })
@@ -294,8 +322,7 @@ class BotSocket{
         return Promise.all(promises)
             .then(()=>{
                 return new Promise((resolve, reject)=>{
-                //Update main bot to be dead
-                    this.bot.age += 1;
+
                     this.bot.save((err)=>{
                         if(err){
                             return reject(err);

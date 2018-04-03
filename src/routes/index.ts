@@ -202,7 +202,8 @@ class Routes{
                blocks:minecraftData.blocks,
                items:minecraftData.items,
                objects: minecraftData.objects,
-               mobs: minecraftData.mobs
+               mobs: minecraftData.mobs,
+               recipes: minecraftData.recipes
 
            }
             return res.json(payload);
