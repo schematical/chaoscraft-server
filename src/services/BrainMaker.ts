@@ -30,9 +30,13 @@ class BrainMaker{
             'dig',
             'dig',
             'dig',
-            'dig',
-            'dig',
-            'dig',
+            'placeBlock',
+            'placeBlock',
+            'placeBlock',
+            'placeBlock',
+            'equip',
+            'equip',
+            'equip',
             'walkTo',
             'tossStack',
             //'equipAndPlace',
@@ -51,7 +55,7 @@ class BrainMaker{
             'jump',
             //'sneak',
             //'sprint',
-            //'clearControlStates',
+            'clearControlStates',
             'lookLeft',
             'lookRight',
             'lookUp',
@@ -77,7 +81,7 @@ class BrainMaker{
         let  passOnAdd = <number>config.get('brain.passOnAdd');
         let  passOnDecay = <number>config.get('brain.passOnDecay');
         if(options.generation){
-            decayNodesLength = Math.round(options.length *(1 + passOnDecay));
+            decayNodesLength = Math.round(options.length *(passOnDecay));
             newMaxOutputLength = Math.round(options.length * (1 + (passOnAdd * options.generation))) - decayNodesLength;
 
         }
