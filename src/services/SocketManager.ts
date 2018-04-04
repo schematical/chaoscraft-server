@@ -590,14 +590,15 @@ class BotSocket{
                             queryUsernames.push(username);
                         }
                     });
-                    if(!_.contains(queryUsernames, 'adam-0')){
+                   /* if(!_.contains(queryUsernames, 'adam-0')){
                         query.username = 'adam-0';
-                    }else{
+                    }else{*/
                         query.username =  {
                             $nin: queryUsernames
                         };
-                    }
-                    query.alive = true;
+                        query.alive = true;
+                   // }
+
 
 
                     return this.sm.app.mongo.models.chaoscraft.Bot.findOne(query, (err:Error, bot:iBot)=>{
