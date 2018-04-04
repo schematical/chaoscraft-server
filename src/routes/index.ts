@@ -289,9 +289,7 @@ class Routes{
             .catch((err)=>{
                 console.error(err.message, err.stack);
             })
-            ecs.listTasks(params, function(err, data) {
 
-            });
 
 
         })
