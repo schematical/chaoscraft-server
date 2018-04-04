@@ -7,6 +7,7 @@ import { BrainMaker } from '../services/BrainMaker'
 import * as fs from 'fs';
 import * as MinecraftData from 'minecraft-data'
 import * as config from 'config';
+import {networkInterfaces} from "os";
 class Routes{
     static setup(app:App){
         app.express.disable('etag');
@@ -209,6 +210,92 @@ class Routes{
             return res.json(payload);
 
         })
+        const AWS = require('aws-sdk');
+        AWS.config.apiVersions = {
+            ecs: '2014-11-13',
+
+            // other service API versions
+        };
+
+
+        var ecs = new AWS.ECS({ region: 'us-east-1'});
+        var params = {
+            cluster: "chaoscraft-minecraft-server",
+            serviceName:"chaoscraft-minecraft-server"
+        };
+        var ec2 = new AWS.EC2({ region: 'us-east-1'});
+
+        app.express.get('/servers', (req, res, next) => {
+            let p = new Promise((resolve, reject)=>{
+                return ecs.listTasks(params, (err, data)=>{
+                    if(err){
+                        return reject(err);
+                    }
+                    return resolve(data);
+                })
+            })
+            .then((data:any)=>{
+                return new Promise((resolve, reject)=> {
+                    let tasks = [];
+                    data.taskArns.forEach((taskArn)=>{
+                        tasks.push(
+                            taskArn.replace('arn:aws:ecs:us-east-1:368590945923:task/', '')
+                        );
+                    })
+                    ecs.describeTasks({
+                        cluster: "chaoscraft-minecraft-server",
+                        tasks: tasks
+                    }, function (err, data) {
+                        if (err) {
+                            return reject(err);
+                        }
+                        return resolve(data);
+                    });
+
+                });
+
+            })
+            .then((data:any)=>{
+                return new Promise((resolve, reject)=> {
+                    var params = {
+                        NetworkInterfaceIds: [ ]
+                    };
+                    data.tasks.forEach((taskData)=>{
+                        taskData.attachments.forEach((attData)=>{
+                            attData.details.forEach((detail)=>{
+                                if(detail.name == 'networkInterfaceId'){
+                                    params.NetworkInterfaceIds.push(detail.value)
+                                }
+                            })
+                        })
+                    })
+
+                    ec2.describeNetworkInterfaces(params, function (err, data) {
+                        if (err) {
+                            return reject(err);
+                        }
+                        return resolve(data);
+                    });
+
+                });
+            })
+            .then((data:any)=>{
+                let ips = [];
+                data.NetworkInterfaces.forEach((networkInterface)=>{
+                    ips.push(networkInterface.Association.PublicIp);
+                })
+                return res.json(ips)
+            })
+            .catch((err)=>{
+                console.error(err.message, err.stack);
+            })
+            ecs.listTasks(params, function(err, data) {
+
+            });
+
+
+        })
+
 
 
     }
