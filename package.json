@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/mocha/bin/mocha"
   },
   "repository": {
     "type": "git",
@@ -39,6 +39,7 @@
     "@types/mongoose": "^5.0.5",
     "@types/node": "^7.0.55",
     "@types/redis": "^2.8.6",
-    "@types/socket.io": "^1.4.31"
+    "@types/socket.io": "^1.4.31",
+    "mocha": "^5.0.5"
   }
 }

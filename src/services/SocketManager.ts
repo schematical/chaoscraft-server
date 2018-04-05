@@ -281,25 +281,28 @@ class BotSocket{
         })
     }
     spawnChildren(payload){
+        let generation = this.bot.generation + 1;
         let options = {
             brainData: JSON.parse(this.bot.brain),
-            generation: this.bot.generation
+            generation: generation
         }
         let brainMaker = new BrainMaker();
-        let brainData = brainMaker.create(options);
 
         let parts = this.bot.username.split('-');
         let generationAndHeritage = parts.pop().substr(1);
         let usernameBase = parts.join('-');
-        if(usernameBase.length + generationAndHeritage.length > 14){
-            usernameBase = usernameBase.substr(0, 14 - generationAndHeritage.length);
+        if(usernameBase.length + generationAndHeritage.length > 13){
+            usernameBase = usernameBase.substr(0, 13 - generationAndHeritage.length);
         }
-        let generation = this.bot.generation + 1;
+
         let alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP';
         let promises = [];
         let litterSize = Math.floor(<number>config.get('brain.max_litter_size') * Math.random());
         for(let i = 0; i < litterSize; i++){
+
             promises.push(new Promise((resolve, reject)=>{
+                let brainData = brainMaker.create(options);
+
                 this.bot.spawnCount = this.bot.spawnCount || 0;
                 this.bot.spawnCount += 1;
                 let childBot = this.sm.app.mongo.models.chaoscraft.Bot({

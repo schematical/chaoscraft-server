@@ -68,7 +68,10 @@ class BrainMaker{
             this.nodeLayers[i] = [];
         }
         for(let i = 0; i < options.inputNodePool; i++){
-            let inputNode = this.randInput(i);
+            let inputNode = this.randInput({
+                id:'input_' + i + '_' + options.generation
+            });
+            inputNode.originGen = options.generation;
             this.indexedNodes[inputNode.id] = inputNode;
             this.nodeLayers.inputs.push(inputNode);
         }
@@ -82,7 +85,7 @@ class BrainMaker{
         let  passOnDecay = <number>config.get('brain.passOnDecay');
         if(options.generation){
             decayNodesLength = Math.round(options.length *(passOnDecay));
-            newMaxOutputLength = Math.round(options.length * (1 + (passOnAdd * options.generation))) - decayNodesLength;
+            newMaxOutputLength = Math.round(options.length * (1 + (passOnAdd))) - decayNodesLength;
 
         }
 
@@ -95,9 +98,10 @@ class BrainMaker{
             for(let ii = 0; ii < options.maxChainLength; ii++){
 
                 let middleNode = {
-                    id: "middle_" +i + "_" + ii,
+                    id: "middle_" +i + "_" + ii + "_" + options.generation,
                     "base_type":"middle",
-                    "dependants":[]
+                    "dependants":[],
+                    originGen: options.generation
                 };
                 this.nodeLayers[i].push(middleNode)
                 this.indexedNodes[middleNode.id] = middleNode;
@@ -120,6 +124,8 @@ class BrainMaker{
                         let parts = nodeId.split('_');
                         this.nodeLayers[parseInt(parts[1])][parseInt(parts[2])] = node;
                         break;
+                    default:
+                        throw new Error("Invalid node.base_type:" + node.base_type)
                 }
             })
         }
@@ -136,7 +142,10 @@ class BrainMaker{
             //Start with an input
 
 
-            let outputNode = this.randOutput(i);
+            let outputNode = this.randOutput({
+                id: "output_" + i + "_" + options.generation
+            })
+            outputNode.originGen = options.generation;
             this.indexedNodes[outputNode.id] = outputNode;
 
             this.nodeLayers.outputs.push(outputNode);
@@ -294,11 +303,14 @@ class BrainMaker{
         this.indexedNodes[outputNode.id] = outputNode;
         this.nodeLayers.outputs.push(outputNode)
     }
-    randInput(i){
+    randInput(options:any){
         let inputKeyIndex = Math.floor(Math.random() * this.INPUT_KEYS.length);
         let input = this.INPUT_KEYS[inputKeyIndex];
+        if(!options.id){
+            throw new Error("Must pass in an `options.id`")
+        }
         let inputNode:any = {
-            id:'input_' + i,
+            id:options.id,
             base_type:'input',
             type:input,
             target:{}
@@ -389,12 +401,14 @@ class BrainMaker{
         return inputNode;
 
     }
-    randOutput(i:number){
+    randOutput(options:any){
         let outputKeyIndex = Math.floor(Math.random() * this.OUTPUT_KEYS.length);
         let output = this.OUTPUT_KEYS[outputKeyIndex];
-
+        if(!options.id){
+            throw new Error("Must pass in an `options.id`")
+        }
         let outputNode:any = {
-            id:'output_' + i,
+            id:options.id,
             base_type:'output',
             type:output,
             dependants:[]
