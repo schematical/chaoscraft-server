@@ -17,59 +17,24 @@ describe('BrainMaker', function() {
         })
         return nodeAgeTotals;
     }
-    describe('gen0', function() {
+    for(var i = 0; i < 50; i++){
+        describe('gen' + i,
+            ((i)=>{
+                return ()=> {
+                    brainholder[i] = brainMaker.create({
+                        brainData: brainholder[i - 1] || null,
+                        generation: i
+                    });
+                    console.log(getCounts(brainholder[i]));
+                    /* it('should return -1 when the value is not present', function() {
+                     assert.equal([1,2,3].indexOf(4), -1);
+                     });*/
+                }
+            })(i)
+        );
+    }
 
-        brainholder[0] = brainMaker.create({});
-        console.log(getCounts(brainholder[0]));
-       /* it('should return -1 when the value is not present', function() {
-            assert.equal([1,2,3].indexOf(4), -1);
-        });*/
-    });
 
-    describe('gen1', function() {
 
-        brainholder[1] = brainMaker.create({
-            brainData: brainholder[0],
-            generation: 1
-        });
-        console.log(getCounts(brainholder[1]));
-       /* it('should return -1 when the value is not present', function() {
-            assert.equal([1,2,3].indexOf(4), -1);
-        });*/
-    });
-    describe('gen2', function() {
-
-        brainholder[2] = brainMaker.create({
-            brainData: brainholder[1],
-            generation: 2
-        });
-        console.log(getCounts(brainholder[2]));
-        /*it('should return -1 when the value is not present', function() {
-            assert.equal([1,2,3].indexOf(4), -1);
-        });*/
-    });
-    describe('gen3', function() {
-
-        brainholder[3] = brainMaker.create({
-            brainData: brainholder[2],
-            generation: 3
-        });
-        console.log(getCounts(brainholder[3]));
-        /*it('should return -1 when the value is not present', function() {
-         assert.equal([1,2,3].indexOf(4), -1);
-         });*/
-    });
-
-    describe('gen4', function() {
-
-        brainholder[4] = brainMaker.create({
-            brainData: brainholder[3],
-            generation: 4
-        });
-        console.log(getCounts(brainholder[4]));
-        /*it('should return -1 when the value is not present', function() {
-         assert.equal([1,2,3].indexOf(4), -1);
-         });*/
-    });
 
 });
