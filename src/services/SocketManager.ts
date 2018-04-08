@@ -124,6 +124,22 @@ class BotSocket{
         this.socket.on('client_death', (payload)=>{
             this.onDeath(payload);
         })
+        this.socket.on('achivment', (payload)=>{
+            this.onAchivement(payload);
+        })
+
+    }
+    onAchivement(payload:any){
+        let multi = this.sm.app.redis.clients.chaoscraft.multi();
+        multi.hincrby('/bots/' + payload.username + '/stats', payload.type, payload.value || 1);
+        multi.hincrby('/stats/' + payload.type, payload.username, payload.value || 1);
+        multi.exec((err)=>{
+            if(err){
+                return this.emitError(err);
+            }
+            //Success
+
+        });
 
     }
     markActive(payload){
@@ -217,10 +233,19 @@ class BotSocket{
                     multi.hmset('/bots/' + this.bot.username + '/position', 'x', _payload.position.x);
                     multi.hmset('/bots/' + this.bot.username + '/position', 'y', _payload.position.y);
                     multi.hmset('/bots/' + this.bot.username + '/position', 'z', _payload.position.z);
+                    multi.hmset('/bots/' + this.bot.username + '/stats', 'distance_traveled', payload.distanceTraveled);
+
+                    multi.hmset('/bots/' + this.bot.username + '/stats', 'health', _payload.health);
+                    multi.hmset('/bots/' + this.bot.username + '/stats', 'food', _payload.health);
+                    multi.hmset('/stats/distance_traveled',  this.bot.username, payload.distanceTraveled);
+                    multi.hmset('/stats/health',  this.bot.username, payload.health);
+                    multi.hmset('/stats/food',  this.bot.username, payload.food);
                     delete(_payload.position);
                 }
                 if(_payload.inventory) {
                     multi.set('/bots/' + this.bot.username + '/inventory', JSON.stringify(_payload.inventory));
+                    multi.hmset('/bots/' + this.bot.username + '/stats', 'inventory', Object.keys(_payload.inventory).length);
+                    multi.hmset('/stats/inventory', this.bot.username, Object.keys(_payload.inventory).length);
                     delete(_payload.inventory);
                 }
                 Object.keys(_payload).forEach((key) => {
@@ -286,7 +311,7 @@ class BotSocket{
             brainData: JSON.parse(this.bot.brain),
             generation: generation
         }
-        let brainMaker = new BrainMaker();
+
 
         let parts = this.bot.username.split('-');
         let generationAndHeritage = parts.pop().substr(1);
@@ -301,8 +326,10 @@ class BotSocket{
         for(let i = 0; i < litterSize; i++){
 
             promises.push(new Promise((resolve, reject)=>{
+                console.log("About to generate brain")
+                let brainMaker = new BrainMaker();
                 let brainData = brainMaker.create(options);
-
+                console.log("Successfully  generate brain");
                 this.bot.spawnCount = this.bot.spawnCount || 0;
                 this.bot.spawnCount += 1;
                 let childBot = this.sm.app.mongo.models.chaoscraft.Bot({

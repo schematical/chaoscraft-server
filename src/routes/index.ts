@@ -193,7 +193,49 @@ class Routes{
 
 
 
+        app.express.get('/bots/:bot/stats', (req, res, next) => {
+            //Load a brain
+            if(!req.params._bot){
+                return res.status(404).json({});
+            }
+            let multi = app.redis.clients.chaoscraft.multi();
+            multi.get('/bots/' + req.params._bot.username + '/stats');
 
+            multi.exec((err, results)=>{
+                return res.json(JSON.parse(results));
+            });
+
+
+
+        });
+        app.express.get('/stats', (req, res, next) => {
+            //Load a brain
+
+            let multi = app.redis.clients.chaoscraft.multi();
+            //TODO: hunger / age
+            let stat_keys = [
+                'distance_traveled',
+                'place_block',
+                'dig',
+                'inventory',
+                'health',
+                'food'
+            ]
+            stat_keys.forEach((key)=>{
+                multi.hgetall('/stats/' + key);
+            })
+
+            multi.exec((err, results)=>{
+                let response = {}
+                stat_keys.forEach((key, index)=>{
+                    response[key] = results[index];
+                })
+                return res.json(response);
+            });
+
+
+
+        });
 
 
         let minecraftData = MinecraftData(config.get('minecraft.version'))
