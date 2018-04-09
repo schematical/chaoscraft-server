@@ -38,6 +38,10 @@ var BotSchema: Schema = new Schema({
     flagged:{
         type:Boolean,
         default: false
+    },
+    spawnPriority:{
+        type:Number,
+        default: 1
     }
 });
 let options = (<any>BotSchema).options;
@@ -67,7 +71,8 @@ interface iBot extends Document {
     notes:string,
     achivements:any,
     spawnCount:number,
-    flagged:boolean
+    flagged:boolean,
+    spawnPriority:number
 }
 
 export {

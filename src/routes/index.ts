@@ -40,7 +40,7 @@ class Routes{
         app.express.use(bodyParser.urlencoded({extended: false}));
 
         app.express.use((req, res, next)=>{
-            res.set('Access-Control-Allow-Headers', 'true');
+            res.set('Access-Control-Allow-Headers', 'Content-Type');
             res.set('Access-Control-Allow-Credentials', 'true');
             res.set('Access-Control-Allow-Origin', 'http://localhost:4200');
             return next();
@@ -141,6 +141,41 @@ class Routes{
             return res.json(req.params._bot.toJSON());
 
         })
+        app.express.post('/bots/:bot', (req, res, next) => {
+            //Load a brain
+            if(!req.params._bot){
+                return res.status(404).json({});
+            }
+            let errors = [];
+            Object.keys(req.body).forEach((key)=>{
+                switch(key){
+                    case('username'):
+                    case('name'):
+                    case('alive'):
+                    case('flagged'):
+                    case('notes'):
+                    case('spawnPriority'):
+                        req.params._bot[key] = req.body[key];
+                        break;
+                    default:
+                        errors.push(key + ' is an invalid parameter')
+                }
+
+            })
+            /*if(errors.length > 0){
+                return res.status(400).json({
+                    error:{
+                        message: errors.join(', ')
+                    }
+                })
+            }*/
+            return req.params._bot.save((err)=>{
+                if(err) return next(err);
+                return res.json(req.params._bot.toJSON());
+            })
+
+
+        })
         app.express.get('/bots/:bot/active', (req, res, next) => {
             //Load a brain
 
@@ -199,10 +234,14 @@ class Routes{
                 return res.status(404).json({});
             }
             let multi = app.redis.clients.chaoscraft.multi();
-            multi.get('/bots/' + req.params._bot.username + '/stats');
+            multi.hgetall('/bots/' + req.params._bot.username + '/stats');
 
             multi.exec((err, results)=>{
-                return res.json(JSON.parse(results));
+                try {
+                    return res.json(/*JSON.parse*/(results[0]));
+                }catch(e){
+                    return next(e);
+                }
             });
 
 
@@ -218,8 +257,11 @@ class Routes{
                 'place_block',
                 'dig',
                 'inventory',
+                'inventory_ct',
                 'health',
-                'food'
+                'health_age',
+                'food',
+                'food_age'
             ]
             stat_keys.forEach((key)=>{
                 multi.hgetall('/stats/' + key);

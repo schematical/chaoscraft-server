@@ -26,7 +26,7 @@ module.exports = {
         chaoscraft: {
             url: 'mongodb://ds117104-a0.mlab.com:17104,ds117104-a1.mlab.com:17104/castdex-prod?replicaSet=rs-ds117104',
             user: 'castdex-application',
-            pass: process.env.MONGO_PASSWORD || 'Jm21Gxu5v1'
+            pass: process.env.MONGO_PASSWORD
         }
 
     },

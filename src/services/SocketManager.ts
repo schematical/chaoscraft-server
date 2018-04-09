@@ -239,13 +239,21 @@ class BotSocket{
                     multi.hmset('/bots/' + this.bot.username + '/stats', 'food', _payload.health);
                     multi.hmset('/stats/distance_traveled',  this.bot.username, payload.distanceTraveled);
                     multi.hmset('/stats/health',  this.bot.username, payload.health);
+                    multi.hmset('/stats/health_age',  this.bot.username, payload.health * this.bot.age);
                     multi.hmset('/stats/food',  this.bot.username, payload.food);
+                    multi.hmset('/stats/food_age',  this.bot.username, payload.food  * this.bot.age);
                     delete(_payload.position);
                 }
                 if(_payload.inventory) {
                     multi.set('/bots/' + this.bot.username + '/inventory', JSON.stringify(_payload.inventory));
                     multi.hmset('/bots/' + this.bot.username + '/stats', 'inventory', Object.keys(_payload.inventory).length);
                     multi.hmset('/stats/inventory', this.bot.username, Object.keys(_payload.inventory).length);
+                    let inventory_ct = 0;
+                    Object.keys(_payload.inventory).forEach((key)=>{
+                        inventory_ct += _payload.inventory[key].count;
+                    })
+                    multi.hmset('/bots/' + this.bot.username + '/stats', 'inventory_ct', inventory_ct);
+                    multi.hmset('/stats/inventory_ct', this.bot.username, inventory_ct);
                     delete(_payload.inventory);
                 }
                 Object.keys(_payload).forEach((key) => {
@@ -631,12 +639,15 @@ class BotSocket{
 
 
 
-                    return this.sm.app.mongo.models.chaoscraft.Bot.findOne(query, (err:Error, bot:iBot)=>{
-                        if(err) {
-                            return reject(err);
+                    return this.sm.app.mongo.models.chaoscraft.Bot.findOne(query)
+                        .sort({ spawnPriority: -1})
+                        .exec((err:Error, bot:iBot)=>{
+                            if(err) {
+                                return reject(err);
+                            }
+                            return resolve(bot);
                         }
-                        return resolve(bot);
-                    })
+                    )
                 })
             })
         })
