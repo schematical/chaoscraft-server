@@ -53,8 +53,9 @@ options.toObject.transform = function (doc, ret, options) {
 }
 
 BotSchema.pre("save", function(next) {
-    if (!this.createdAt) {
-        this.createdAt = new Date();
+    let _this = <any>this;
+    if (!_this.createdAt) {
+        _this.createdAt = new Date();
     }
     next();
 });
