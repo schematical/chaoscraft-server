@@ -5,6 +5,7 @@ COPY ./tsconfig.json .
 COPY ./package.json .
 COPY ./src ./src
 COPY ./config ./config
+COPY ./adam.json ./adam.json
 #RUN ls -la ./node_modules/
 RUN npm i --unsafe-perm
 RUN npm i typescript

@@ -48,7 +48,7 @@ class BrainMaker{
             'placeBlock',
             'equip',
             'attack',
-            //'activateItem',
+            'activateItem',
             //'deactivateItem',
             'walkLeft',
             'walkRight',
@@ -351,17 +351,44 @@ class BrainMaker{
             case(Enum.InputTypes.entityUpdate):
             case(Enum.InputTypes.canSeeEntity):
             case(Enum.InputTypes.playerCollect):
-                inputNode.target = {
-                    type:'entity',
-                    entityTypes: []
+                switch(Math.floor(Math.random() * 3)){
+                    case(0):
+                        inputNode.target = {
+                            type:'entity',
+                            entityTypes: []
+                        }
+                        for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                            inputNode.target.entityTypes.push(this.randEntity().id);
+                        }
+                    break;
+                    case(1):
+
+                        inputNode.target = {
+                            type:'entity',
+                            meta_blockId: []
+                        }
+                        for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                            inputNode.target.meta_blockId.push(this.randItem().id);
+                        }
+                    break;
+                    case(2):
+                        inputNode.target = {
+                            type:'entity',
+                            is_holding: []
+                        }
+                        for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                            inputNode.target.is_holding.push(this.randItem().id);
+                        }
+                    break;
+                    default:
+                        throw new Error("Your math is off");
                 }
-                for(let i = 0; i < config.get('brain.maxTargets'); i++){
-                    inputNode.target.entityTypes.push(this.randEntity().id);
-                }
+
+
                 break;
 
             case(Enum.InputTypes.hasInInventory):
-
+            case(Enum.InputTypes.hasEquipped):
 
                 if(Math.round(Math.random()) == 0){
                     inputNode.target = {
@@ -391,12 +418,22 @@ class BrainMaker{
                     inputNode.target.item.push(this.randItem().id);//We convert this to a real recipe list on the other side
                 }
             break;
+            case(Enum.InputTypes.isHolding):
+                inputNode.target = {
+                    type:'entity',
+                    is_holding: []
+                }
+                for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                    inputNode.target.is_holding.push(this.randItem().id);
+                }
+            break;
             case(Enum.InputTypes.onCorrelateAttack):
                 /*inputNode.target = {
                  type:'entity',
                  id: this.randEntity()
                  }*/
                 break;
+
 
         }
         return inputNode;

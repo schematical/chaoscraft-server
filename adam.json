@@ -152,24 +152,7 @@
 
 
 
-  "input14":{
-    "base_type":"input",
-    "type":"canSeeEntity",
-    "target":{
-      "type":"entity",
-      "entityType":[93, 92, 91,90]
-    }
-  },
-  "output14":{
-    "base_type":"output",
 
-    "type":"attack",
-    "dependants":[
-      {
-        "id":"input14"
-      }
-    ]
-  },
 
 
 
@@ -222,7 +205,7 @@
   "output17":{
     "base_type":"output",
 
-    "type":"dig",
+    "type":"jump",
     "dependants":[
       {
         "id":"input17"
@@ -294,6 +277,9 @@
   },
 
 
+
+
+
   "input21":{
     "base_type":"input",
     "type":"canTouchBlock",
@@ -311,7 +297,132 @@
         "id":"input21"
       }
     ]
+  },
+
+
+
+
+
+
+
+
+
+
+
+  "input25":{
+    "base_type":"input",
+    "type":"canTouchBlock",
+    "target":{
+      "type":"block",
+      "block":[17]
+    }
+  },
+  "output25":{
+    "base_type":"output",
+
+    "type":"dig",
+    "dependants":[
+      {
+        "id":"input25"
+      }
+    ]
+  },
+
+
+
+
+
+
+
+  "input24":{
+    "base_type":"input",
+    "type":"canSeeBlock",
+    "target":{
+      "type":"block",
+      "block":[17]
+    }
+  },
+  "output24":{
+    "base_type":"output",
+
+    "type":"walkTo",
+    "dependants":[
+      {
+        "id":"input24"
+      }
+    ]
+  },
+
+
+
+
+
+
+
+
+  "input23":{
+    "base_type":"input",
+    "type":"isHolding",
+    "target":{
+      "type":"entity",
+      "is_holding":[412, 413, 434, 424,391,382,364, 366,354]
+    }
+  },
+  "output23":{
+    "base_type":"output",
+
+    "type":"activateItem",
+    "dependants":[
+      {
+        "id":"input23"
+      }
+    ]
+  },
+
+
+  "input22":{
+    "base_type":"input",
+    "type":"hasInInventory",
+    "target":{
+      "type":"block",
+      "block":[412, 413, 434, 424,391,382,364, 366,354]
+    }
+  },
+  "output22":{
+    "base_type":"output",
+
+    "type":"equip",
+    "dependants":[
+      {
+        "id":"input22"
+      }
+    ]
+  },
+
+
+  "input14":{
+    "base_type":"input",
+    "type":"canSeeEntity",
+    "target":{
+      "type":"entity",
+      "entityType":[93, 92, 91,90]
+    }
+  },
+  "output14":{
+    "base_type":"output",
+
+    "type":"attack",
+    "dependants":[
+      {
+        "id":"input14"
+      }
+    ]
   }
+
+
+
+
+
 
 
 

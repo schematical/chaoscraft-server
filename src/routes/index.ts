@@ -124,10 +124,28 @@ class Routes{
                                 botUsernames.push(username);
                             }
                         });
-                        return res.json(botUsernames);
+                       return resolve(botUsernames)
                     })
                 })
 
+            })
+            .then((usernames:any)=>{
+                return new Promise((resolve, reject)=> {
+                    return app.mongo.models.chaoscraft.Bot.find({
+                        username: {
+                            $in:usernames
+                        }
+                    })
+                    .exec((err, results) => {
+                        if (err) return reject(err);
+
+                        return resolve(results)
+                    })
+                })
+
+            })
+            .then((bots)=>{
+                return res.json(bots);
             })
             .catch(next);
 
@@ -261,7 +279,8 @@ class Routes{
                 'health',
                 'health_age',
                 'food',
-                'food_age'
+                'food_age',
+                'attack'
             ]
             stat_keys.forEach((key)=>{
                 multi.hgetall('/stats/' + key);
