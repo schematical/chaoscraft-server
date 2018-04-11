@@ -471,7 +471,7 @@ class BrainMaker{
         return this.minecraftData.entitiesArray[Math.floor(Math.random() * this.minecraftData.entitiesArray.length)];
     }
     randRecipe(){
-        return this.minecraftData.recipes[Math.floor(Math.random() * this.minecraftData.recipes.length)];
+        return this.minecraftData.recipe[Math.floor(Math.random() * this.minecraftData.recipe.length)];
     }
 }
 export { BrainMaker }

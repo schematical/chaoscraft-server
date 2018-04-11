@@ -329,6 +329,9 @@ class Routes{
         var ec2 = new AWS.EC2({ region: 'us-east-1'});
 
         app.express.get('/servers', (req, res, next) => {
+            if(process.env.SERVERS_OVERRIDE){
+                return res.json([process.env.SERVERS_OVERRIDE]);
+            }
             let p = new Promise((resolve, reject)=>{
                 return ecs.listTasks(params, (err, data)=>{
                     if(err){
