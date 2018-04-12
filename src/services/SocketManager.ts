@@ -186,11 +186,12 @@ class BotSocket{
             case('adam-0'):
                 return;
             default:
+                //TODO: Run the real fittness function
+                if(payload.distanceTraveled < 10) {
+                    return this.onClientNotFiring(payload);
+                }
         }
-        //TODO: Run the real fittness function
-        if(payload.distanceTraveled < 10) {
-            return this.onClientNotFiring(payload);
-        }
+
 
 
 

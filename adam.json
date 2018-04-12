@@ -305,6 +305,26 @@
 
 
 
+  "input26":{
+    "base_type":"input",
+    "type":"hasRecipeInInventory",
+    "target":{
+      "type":"recipe",
+      "recipe":[5]
+    }
+  },
+  "output26":{
+    "base_type":"output",
+
+    "type":"craft",
+    "dependants":[
+      {
+        "id":"input26"
+      }
+    ]
+  },
+
+
 
 
 
@@ -321,6 +341,27 @@
     "base_type":"output",
 
     "type":"dig",
+    "dependants":[
+      {
+        "id":"input25"
+      }
+    ]
+  },
+
+
+
+  "input27":{
+    "base_type":"input",
+    "type":"canSeeEntity",
+    "target":{
+      "type":"meta_blockId",
+      "meta_blockId":[117]
+    }
+  },
+  "output27":{
+    "base_type":"output",
+
+    "type":"walkTo",
     "dependants":[
       {
         "id":"input25"

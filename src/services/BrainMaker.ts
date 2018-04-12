@@ -333,6 +333,10 @@ class BrainMaker{
                     type:'block',
                     block: []//this.randBlock().id
                 }
+                if(input == Enum.InputTypes.canSeeBlock){
+                    inputNode.target.maxDistance = Math.floor(Math.random() * 20);
+                }
+
                 for(let i = 0; i < config.get('brain.maxTargets'); i++){
                     inputNode.target.block.push(this.randBlock().id);
                 }

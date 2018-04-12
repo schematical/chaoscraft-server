@@ -60,6 +60,49 @@ class Routes{
 
             return res.json(brainData);
         });
+
+        app.express.post('/reset', (req, res, next) => {
+            return new Promise((resolve, reject)=> {
+                //Load any bots on deck
+                return app.redis.clients.chaoscraft.keys(config.get('redis.chaoscraft.prefix') + '*', (err, keys)=>{
+                    if(err) return reject(err);
+                    return resolve(keys);
+                })
+            })
+            .then((keys:any)=>{
+                return new Promise((resolve, reject)=> {
+                    let multi = app.redis.clients.chaoscraft.multi();
+                    keys.forEach((key)=>{
+                        key = key.substr((<string>config.get('redis.chaoscraft.prefix')).length)
+                        multi.del(key);
+                    })
+
+                    return multi.exec((err)=>{
+                        if(err) return reject(err);
+                        return resolve();
+                    })
+                })
+            })
+            .then(()=>{
+                return new Promise((resolve, reject)=> {
+                    let query = {
+                        flagged: {$ne: true}
+                    }
+                    return app.mongo.models.chaoscraft.Bot.remove(query, (err)=>{
+                        if(err) return reject(err);
+                        return resolve();
+                    })
+                })
+            })
+            .then(()=>{
+                return res.json({
+                    message: "Done"
+                });
+            })
+            .catch(next);
+        })
+
+
         app.express.post('/bots', (req, res, next) => {
             //Load a brain
             let options = {
