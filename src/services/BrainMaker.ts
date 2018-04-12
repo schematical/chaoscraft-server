@@ -412,10 +412,11 @@ class BrainMaker{
             case(Enum.InputTypes.hasRecipeInInventory):
                 inputNode.target = {
                     type:'recipe',
-                    item: []//this.randItem().id
+                    recipe: []//this.randItem().id
                 }
                 for(let i = 0; i < config.get('brain.maxTargets'); i++){
-                    inputNode.target.item.push(this.randItem().id);//We convert this to a real recipe list on the other side
+                    let recipe = this.randRecipe();
+                    inputNode.target.recipe.push(recipe);//We convert this to a real recipe list on the other side
                 }
             break;
             case(Enum.InputTypes.isHolding):
@@ -471,7 +472,8 @@ class BrainMaker{
         return this.minecraftData.entitiesArray[Math.floor(Math.random() * this.minecraftData.entitiesArray.length)];
     }
     randRecipe(){
-        return this.minecraftData.recipe[Math.floor(Math.random() * this.minecraftData.recipe.length)];
+        let rKeys = Object.keys(this.minecraftData.recipes);
+        return /*this.minecraftData.recipes[*/rKeys[Math.floor(Math.random() * rKeys.length)]/*]*/;
     }
 }
 export { BrainMaker }
