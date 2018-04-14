@@ -184,7 +184,8 @@ class BotSocket{
         switch(payload.username){
             //case('j-otis-0'):
             case('adam-0'):
-                return;
+                //return;
+                break;
             default:
                 //TODO: Run the real fittness function
                 if(payload.distanceTraveled < 10) {
@@ -397,11 +398,22 @@ class BotSocket{
 
         })
         .then((bot:iBot)=>{
+
+            return new Promise((resolve, reject)=>{
+                this.sm.app.redis.clients.chaoscraft.srem('/active_bots', bot.username, (err)=>{
+                    if(err){
+                        return reject(err);
+                    }
+                    return resolve(bot);
+                });
+            });
+        })
+        .then((bot:iBot)=>{
             return new Promise((resolve, reject)=>{
 
                 console.log("Removing  " +payload.username + " for not firing after 30");
                 bot.alive = false;
-                return bot.save((err)=>{
+                return bot.remove/*.save*/((err)=>{
                     //console.log("Removing  " +payload.username + " SAVED - ", err, bot && bot.toJSON());
                     if(err){
                         return reject(err);
@@ -410,17 +422,7 @@ class BotSocket{
                 })
             })
         })
-        .then((bot:iBot)=>{
 
-            return new Promise((resolve, reject)=>{
-                this.sm.app.redis.clients.chaoscraft.srem('/active_bots', bot.username, (err)=>{
-                    if(err){
-                        return reject(err);
-                    }
-                    return resolve();
-                });
-            });
-        })
         .then(()=>{
             return this.onHello({});
         })
@@ -514,16 +516,16 @@ class BotSocket{
             if(bot){
                 return bot;
             }
-            return new Promise((resolve, reject)=>{
 
+            return new Promise((resolve, reject)=>{
+                let names = fs.readFileSync(__dirname + '/../../config/names.csv').toString().split('\n')
+                let name = names[Math.floor(Math.random() * names.length)].split(',')[1];
                 //Lets create one
                 let options = {
 
                 }
                 let brainMaker = new BrainMaker();
                 let brainData = brainMaker.create(options);
-                let names = fs.readFileSync(__dirname + '/../../config/names.csv').toString().split('\n')
-                let name = names[Math.floor(Math.random() * names.length)].split(',')[1];
                 let parts = name.split(' ');
                 let username = null;
                 if(parts.length == 1){
@@ -547,7 +549,8 @@ class BotSocket{
                 })
                 return this.bot.save((err:Error, bot:iBot)=>{
                     if(err) {
-                        return reject(err);
+                        return this.onHello(data);
+                        //return reject(err);
                     }
                     return resolve(bot);
 
