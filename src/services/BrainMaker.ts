@@ -113,7 +113,7 @@ class BrainMaker{
             //Load brain data into nodes
             Object.keys(options.brainData).forEach((nodeId)=>{
                 let node = options.brainData[nodeId];
-
+                node.id = nodeId;
                 switch(node.base_type){
                     case('output'):
                         this.nodeLayers.outputs.push(node);
@@ -233,6 +233,10 @@ class BrainMaker{
             }
 
             node.dependants.forEach((dependant)=>{
+                if(!indexedNodes[dependant.id]){
+                    console.error("Missing Node: " + dependant.id, node);
+                    return;
+                }
                 brainData[indexedNodes[dependant.id].id] = indexedNodes[dependant.id];
                 addNode(brainData[indexedNodes[dependant.id].id]);
             })

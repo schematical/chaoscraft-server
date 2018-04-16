@@ -9,8 +9,8 @@ module.exports = {
         maxTargets: 10,
         passOnDecay: .05,//The amount of nodes to lose
         passOnAdd: .1,//The percentage of nodes to add on
-        max_litter_size: 6,
-        spawn_children_pong_ct: 5//4x a day
+        max_litter_size: 10,
+        spawn_children_pong_ct: 4//4x a day
     },
     minecraft:{
         version:'1.12.2'

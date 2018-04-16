@@ -181,17 +181,6 @@ class BotSocket{
 
 
         this.socket.to('www').emit('client_pong', payload);
-        switch(payload.username){
-            //case('j-otis-0'):
-            case('adam-0'):
-                //return;
-                break;
-            default:
-                //TODO: Run the real fittness function
-                if(payload.distanceTraveled < 10) {
-                    return this.onClientNotFiring(payload);
-                }
-        }
 
 
 
@@ -277,13 +266,73 @@ class BotSocket{
             return this.updateBrainWithNodeData(payload);
         })
         .then(()=>{
+            return new Promise((resolve, reject)=>{
+
+                let multi = this.sm.app.redis.clients.chaoscraft.multi();
+                multi.hgetall('/bots/' + this.bot.username + '/stats')
+                return multi.exec((err, stats)=>{
+                    if(err){
+                        return reject(err);
+                    }
+                    return resolve(stats[0]);
+                })
+            })
+
+        })
+        .then((stats:any)=>{
+
+
+            switch(payload.username){
+                //case('j-otis-0'):
+                case('adam-0'):
+                    return;
+                //break;
+                default:
+                    //TODO: Run the real fittness function
+            }
+            if(
+                payload.distanceTraveled < 7
+            ) {
+                return this.onClientNotFiring(payload);
+            }
+            if(
+                this.bot.age > 14 ||
+                !stats.dig
+            ){
+                return this.onClientNotFiring(payload);
+            }
+
+            if(
+                this.bot.age > 25 ||
+                !stats.placeBlock
+            ){
+                return this.onClientNotFiring(payload);
+            }
+
+            if(
+                this.bot.age > 50 ||
+                !stats.attack
+            ){
+                return this.onClientNotFiring(payload);
+            }
+            if(
+                this.bot.age > 100 ||
+                !stats.craftw
+            ){
+                return this.onClientNotFiring(payload);
+            }
+
+
             //Every X pongs spawn children
+            return;
+
+        })
+        .then(()=>{
             if(this.bot.age % <number>config.get('brain.spawn_children_pong_ct') != 0){
                 return;
             }
             return this.spawnChildren(payload);
         })
-
         .catch((err)=>{
             return this.emitError(err);
         })
@@ -317,10 +366,14 @@ class BotSocket{
     }
     spawnChildren(payload){
         let generation = this.bot.generation + 1;
+        if(this.bot.username == 'adam-0'){
+            this.bot.brain = fs.readFileSync(__dirname + '/../../adam.json').toString();
+        }
         let options = {
             brainData: JSON.parse(this.bot.brain),
             generation: generation
         }
+
 
 
         let parts = this.bot.username.split('-');
@@ -479,6 +532,9 @@ class BotSocket{
                     return reject(err);
                 }
                 this.bot = bot;
+                if(!this.bot){
+                    return reject(new Error("No bot found with username `" + data.username + "`"))
+                }
                 return resolve(bot);
             })
 

@@ -305,6 +305,28 @@
 
 
 
+  "input28":{
+    "base_type":"input",
+    "type":"hasRecipeInInventory",
+    "target":{
+      "type":"recipe",
+      "recipe":[58]
+    }
+  },
+  "output28":{
+    "base_type":"output",
+
+    "type":"craft",
+    "dependants":[
+      {
+        "id":"input28"
+      }
+    ]
+  },
+
+
+
+
   "input26":{
     "base_type":"input",
     "type":"hasRecipeInInventory",
@@ -373,6 +395,26 @@
 
 
 
+  "input30":{
+    "base_type":"input",
+    "type":"canTouchBlock",
+    "target":{
+      "type":"block",
+      "block":[18,161]
+    }
+  },
+  "output30":{
+    "TODO":"Addd NOT Clause",
+    "debug":true,
+    "base_type":"output",
+
+    "type":"dig",
+    "dependants":[
+      {
+        "id":"input30"
+      }
+    ]
+  },
 
 
   "input24":{
@@ -420,6 +462,58 @@
     ]
   },
 
+
+
+  "input31":{
+    "base_type":"input",
+    "type":"canTouchBlock",
+    "target":{
+      "type":"block",
+      "block":[2,3]
+    }
+  },
+  "input31x":{
+    "base_type":"input",
+    "type":"isHolding",
+    "target":{
+      "type":"entity",
+      "is_holding":[58]
+    }
+  },
+  "output31":{
+    "base_type":"output",
+
+    "type":"placeBlock",
+    "dependants":[
+      {
+        "id":"input31"
+      },
+      {
+        "id":"input31x"
+      }
+    ]
+  },
+
+
+
+  "input29":{
+    "base_type":"input",
+    "type":"hasInInventory",
+    "target":{
+      "type":"block",
+      "block":[58]
+    }
+  },
+  "output29":{
+    "base_type":"output",
+
+    "type":"equip",
+    "dependants":[
+      {
+        "id":"input29"
+      }
+    ]
+  },
 
   "input22":{
     "base_type":"input",
