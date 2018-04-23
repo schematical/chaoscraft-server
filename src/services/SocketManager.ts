@@ -466,7 +466,16 @@ class BotSocket{
 
                 console.log("Removing  " +payload.username + " for not firing after 30");
                 bot.alive = false;
-                return bot.remove/*.save*/((err)=>{
+                if(bot.generation < 3){
+                    return bot.remove/*.save*/((err)=>{
+                        //console.log("Removing  " +payload.username + " SAVED - ", err, bot && bot.toJSON());
+                        if(err){
+                            return reject(err);
+                        }
+                        return resolve(bot);
+                    })
+                }
+                return bot.save((err)=>{
                     //console.log("Removing  " +payload.username + " SAVED - ", err, bot && bot.toJSON());
                     if(err){
                         return reject(err);

@@ -64,7 +64,7 @@ interface iBot extends Document {
     name?: string;
     username?:string;
     brain?: string;
-    generation?: string;
+    generation?: number;
     age: number,
     mother?: Schema.Types.ObjectId;
     father?: Schema.Types.ObjectId;
