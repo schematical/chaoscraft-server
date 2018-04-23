@@ -303,7 +303,7 @@ class BotSocket{
             }
 
             if(
-                this.bot.age > 25 ||
+                this.bot.age > 19 ||
                 !stats.placeBlock
             ){
                 return this.onClientNotFiring(payload);
