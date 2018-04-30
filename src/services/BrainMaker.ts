@@ -28,13 +28,10 @@ class BrainMaker{
         this.OUTPUT_KEYS = [
             'dig',
             'dig',
-            'dig',
-            'dig',
             'placeBlock',
             'placeBlock',
             'placeBlock',
             'placeBlock',
-            'equip',
             'equip',
             'equip',
             'walkTo',

@@ -8,6 +8,7 @@ import { BrainMaker } from '../services/BrainMaker'
 import * as config from 'config'
 import * as replaceall from 'replaceall'
 import * as SocketRedis from 'socket.io-redis'
+import * as shortid from 'shortid';
 class SocketManager{
     public debug = null;
     protected socket:SocketIO.Server = null;
@@ -229,6 +230,8 @@ class BotSocket{
                     multi.hmset('/bots/' + this.bot.username + '/stats', 'health', _payload.health);
                     multi.hmset('/bots/' + this.bot.username + '/stats', 'food', _payload.health);
                     multi.hmset('/stats/distance_traveled',  this.bot.username, payload.distanceTraveled);
+
+                    multi.hmset('/stats/age',  this.bot.username, this.bot.age);
                     multi.hmset('/stats/health',  this.bot.username, payload.health);
                     multi.hmset('/stats/health_age',  this.bot.username, payload.health * this.bot.age);
                     multi.hmset('/stats/food',  this.bot.username, payload.food);
@@ -317,17 +320,12 @@ class BotSocket{
             }
             if(
                 this.bot.age > 100 ||
-                !stats.craftw
+                !stats.craft
             ){
                 return this.onClientNotFiring(payload);
             }
 
 
-            //Every X pongs spawn children
-            return;
-
-        })
-        .then(()=>{
             if(this.bot.age % <number>config.get('brain.spawn_children_pong_ct') != 0){
                 return;
             }
@@ -383,7 +381,7 @@ class BotSocket{
             usernameBase = usernameBase.substr(0, 13 - generationAndHeritage.length);
         }
 
-        let alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP';
+        //let alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         let promises = [];
         let litterSize = Math.floor(<number>config.get('brain.max_litter_size') * Math.random());
         for(let i = 0; i < litterSize; i++){
@@ -395,12 +393,14 @@ class BotSocket{
                 console.log("Successfully  generate brain");
                 this.bot.spawnCount = this.bot.spawnCount || 0;
                 this.bot.spawnCount += 1;
+                let _shortid = shortid.generate();
                 let childBot = this.sm.app.mongo.models.chaoscraft.Bot({
-                    username: usernameBase +'-'+generation + generationAndHeritage + alphabet.substr(this.bot.spawnCount % alphabet.length, 1),
+                    username: usernameBase +'-'+generation  + '-' + _shortid,
                     name:this.bot.name,
                     brain: JSON.stringify(brainData),
                     generation:generation,
-                    mother: this.bot._id
+                    mother: this.bot._id,
+                    shortid: _shortid
                 })
                 return childBot.save((err:Error, bot:iBot)=>{
                     if(err) {
@@ -626,8 +626,10 @@ class BotSocket{
         .then((bot) => {
             this.bot = bot;
             return new Promise((resolve, reject)=>{
-
-                return this.sm.app.redis.clients.chaoscraft.sadd('/active_bots', this.bot.username, (err)=>{
+                let multi = this.sm.app.redis.clients.chaoscraft.multi();
+                multi.hincrby('/bots/' + this.bot.username + '/stats', 'loaded_count',1);
+                multi.sadd('/active_bots', this.bot.username);
+                return multi.exec((err)=>{
                     if(err){
                         return reject(err);
                     }

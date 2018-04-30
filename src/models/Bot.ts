@@ -1,4 +1,5 @@
 import { Schema, Document } from "mongoose";
+import * as shortid from 'shortid';
 
 var BotSchema: Schema = new Schema({
     createdAt: Date,
@@ -42,6 +43,10 @@ var BotSchema: Schema = new Schema({
     spawnPriority:{
         type:Number,
         default: 1
+    },
+    shortId:{
+        type: String,
+       // 'default': shortid.generate
     }
 });
 let options = (<any>BotSchema).options;

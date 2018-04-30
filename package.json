@@ -29,6 +29,7 @@
     "mongoose": "^5.0.8",
     "redis": "^2.8.0",
     "replaceall": "^0.1.6",
+    "shortid": "^2.2.8",
     "socket.io": "^2.0.4",
     "socket.io-redis": "^5.2.0",
     "underscore": "^1.8.3"
