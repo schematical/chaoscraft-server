@@ -299,27 +299,27 @@ class BotSocket{
                 return this.onClientNotFiring(payload);
             }
             if(
-                this.bot.age > 14 ||
+                this.bot.age > 14 &&
                 !stats.dig
             ){
                 return this.onClientNotFiring(payload);
             }
 
             if(
-                this.bot.age > 19 ||
+                this.bot.age > 19 &&
                 !stats.placeBlock
             ){
                 return this.onClientNotFiring(payload);
             }
 
             if(
-                this.bot.age > 50 ||
+                this.bot.age > 50 &&
                 !stats.attack
             ){
                 return this.onClientNotFiring(payload);
             }
             if(
-                this.bot.age > 100 ||
+                this.bot.age > 100 &&
                 !stats.craft
             ){
                 return this.onClientNotFiring(payload);
