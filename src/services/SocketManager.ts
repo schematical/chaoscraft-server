@@ -326,10 +326,10 @@ class BotSocket{
             }
 
 
-            if(this.bot.age % <number>config.get('brain.spawn_children_pong_ct') != 0){
-                return;
+            if(this.bot.age % <number>config.get('brain.spawn_children_pong_ct') === 0){
+                return this.spawnChildren(payload);
             }
-            return this.spawnChildren(payload);
+            return;
         })
         .catch((err)=>{
             return this.emitError(err);
