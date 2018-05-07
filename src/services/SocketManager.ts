@@ -195,6 +195,7 @@ class BotSocket{
                     return reject(err);
                 }
                 if(!this.bot){
+                    this.onHello({});
                     return reject(new Error("No bot found with `payload.username` = " + payload.username))
                 }
                 this.bot = bot;
@@ -443,6 +444,7 @@ class BotSocket{
                     return reject(err);
                 }
                 if(!bot){
+                    this.onHello({});
                     return reject(new Error("No valid bot with username: " + payload.username));
                 }
                 this.bot = bot;
@@ -542,6 +544,7 @@ class BotSocket{
                 }
                 this.bot = bot;
                 if(!this.bot){
+                    this.onHello({});
                     return reject(new Error("No bot found with username `" + data.username + "`"))
                 }
                 return resolve(bot);
@@ -659,7 +662,7 @@ class BotSocket{
             multi.hmset( '/bots/' + this.bot.username + '/position', 'z', payload.startPosition.z);
             delete(payload.startPosition);
             Object.keys(payload).forEach((key)=>{
-                multi.set( '/bots/' + payload.username + '/spawn_data', key, payload[key]);
+                multi.set( '/bots/' + payload.username + '/spawn_data', key, payload[key] || {});
             })
             multi.exec((err)=>{
                 (err)=>{
