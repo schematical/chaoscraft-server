@@ -98,7 +98,7 @@ class BotSocket{
 
         this.socket.join('clients');
         this.socket.on('disconnect', ()=>{
-            this.onDisconnect();
+            //this.onDisconnect();
         });
         this.socket.on('client_fire_outputnode', (payload)=>{
             this.onFireOutputNode(payload);
@@ -295,10 +295,12 @@ class BotSocket{
                     //TODO: Run the real fittness function
             }
             if(
-                payload.distanceTraveled < 7
+                this.bot.age > 7 &&
+                payload.distanceTraveled < 20
             ) {
                 return this.onClientNotFiring(payload);
             }
+
             if(
                 this.bot.age > 14 &&
                 this.bot.generation > 2 &&

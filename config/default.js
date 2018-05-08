@@ -29,32 +29,8 @@ module.exports = {
             pass: process.env.MONGO_PASSWORD
         }
 
-    },
-    aws:{
-        region:'us-east-1',
-        sqs:{
-            queues: {
-                chaoscraft: {
-                    url: 'https://sqs.us-east-1.amazonaws.com/368590945923/castdex-prod'
-                },
-
-            }
-        },
-        s3:{
-            buckets:{
-                //media:'chaoscraft'
-            }
-        }
-    },
-    session:{
-        secret:'920mIUf[w!!*#id'
-    },
-    google:{
-        clientId:'331751192796-avnl2q3iueue79k8h62mde4m8qtgf029.apps.googleusercontent.com',
-        clientSecret:'sshLFp-1HU25xT1TUe4Uazoh',
-        redirectUrl:'https://www.castex.com/auth/google'
-    },
+    },/*
     auth:{
-        jwt_secret:'(iHp&^mU!7#lll'
-    }
+        jwt_secret:'id88e3oa9P(D[fe9'
+    }*/
 }
