@@ -1,4 +1,4 @@
-#ChaosCraft Server:
+# ChaosCraft Server:
 This manages the brains behind the [ChaosCraft Bots](http://github.com/schematical/chaoscraft).
 If your not familiar with ChaosCraft check us out on [YouTube](https://www.youtube.com/playlist?list=PLLkpLgU9B5xJ7Qy4kOyBJl5J6zsDIMceH)
 
@@ -80,32 +80,32 @@ npm start
 ### Step 9:
 
 
-##API:
+## API:
 NOTE: This is not complete and moves quickly. Just look in the [./routes](./routes) directory.
 
-###`GET /bots`:
+### `GET /bots`:
 List off bots that are marked as `alive`
 
-###`GET /bots/:bot`:
+### `GET /bots/:bot`:
 Gives you details on a specific bot
 
-###`GET /bots/:bot/brain`:
+### `GET /bots/:bot/brain`:
 Returns the bots Neural Network
 
-###`GET /bots/active`:
+### `GET /bots/active`:
 Returns a list of bots that are currently active(online).
 
-###`GET /bots/:bot/active`:
+### `GET /bots/:bot/active`:
 Lets you know if a specific bot is online.
 
-###`GET /bots/:bot/inventory`
+### `GET /bots/:bot/inventory`
 Returns information on a specific bots inventory
 
-###`GET /bots/:bot/position`
+### `GET /bots/:bot/position`
 Returns information on a specific bots position
 
-###`GET /bots/:bot/stats`
+### `GET /bots/:bot/stats`
 Returns information on a specific bots stats
 
-###`GET /stats`
+### `GET /stats`
 Returns leaderboard information
