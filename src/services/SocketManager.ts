@@ -301,6 +301,7 @@ class BotSocket{
             }
             if(
                 this.bot.age > 14 &&
+                this.bot.generation > 2 &&
                 !stats.dig
             ){
                 return this.onClientNotFiring(payload);
@@ -308,6 +309,7 @@ class BotSocket{
 
             if(
                 this.bot.age > 19 &&
+                this.bot.generation > 4 &&
                 !stats.placeBlock
             ){
                 return this.onClientNotFiring(payload);
@@ -315,12 +317,14 @@ class BotSocket{
 
             if(
                 this.bot.age > 50 &&
+                this.bot.generation > 8 &&
                 !stats.attack
             ){
                 return this.onClientNotFiring(payload);
             }
             if(
                 this.bot.age > 100 &&
+                this.bot.generation > 16 &&
                 !stats.craft
             ){
                 return this.onClientNotFiring(payload);

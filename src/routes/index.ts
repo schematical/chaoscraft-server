@@ -316,6 +316,7 @@ class Routes{
             let stat_keys = [
                 'distance_traveled',
                 'place_block',
+                'place_block_attempt',
                 'dig',
                 'inventory',
                 'inventory_ct',
@@ -335,7 +336,7 @@ class Routes{
             multi.exec((err, results)=>{
                 let response = {}
                 stat_keys.forEach((key, index)=>{
-                    response[key] = results[index];
+                    response[key] = results[index] || {};
                 })
                 return res.json(response);
             });
