@@ -285,15 +285,8 @@ class BotSocket{
         })
         .then((stats:any)=>{
 
+            let flagBot = false;
 
-            switch(payload.username){
-                //case('j-otis-0'):
-                case('adam-0'):
-                    return;
-                //break;
-                default:
-                    //TODO: Run the real fittness function
-            }
             if(
                 this.bot.age > 7 &&
                 payload.distanceTraveled < 20
@@ -312,23 +305,41 @@ class BotSocket{
             if(
                 this.bot.age > 19 &&
                 this.bot.generation > 4 &&
-                !stats.placeBlock
+                !stats.equip
             ){
                 return this.onClientNotFiring(payload);
             }
 
             if(
+                this.bot.age > 25 &&
+                this.bot.generation > 8
+            ){
+                if(!stats.place_block){
+                    return this.onClientNotFiring(payload);
+                }else{
+                    flagBot = true;
+                }
+            }
+
+            if(
                 this.bot.age > 50 &&
-                this.bot.generation > 8 &&
+                this.bot.generation > 16 &&
                 !stats.attack
             ){
                 return this.onClientNotFiring(payload);
             }
             if(
                 this.bot.age > 100 &&
-                this.bot.generation > 16 &&
+                this.bot.generation > 32 &&
                 !stats.craft
             ){
+                return this.onClientNotFiring(payload);
+            }
+
+            if(
+                this.bot.age > 300
+            ){
+                //Its just time to die
                 return this.onClientNotFiring(payload);
             }
 
@@ -336,7 +347,22 @@ class BotSocket{
             if(this.bot.age % <number>config.get('brain.spawn_children_pong_ct') === 0){
                 return this.spawnChildren(payload);
             }
-            return;
+            if(!flagBot) {
+                return;
+            }
+            if(this.bot.flagged){
+                return;
+            }
+            this.bot.flagged = true;
+            return new Promise((resolve, reject)=>{
+                this.bot.save((err)=>{
+                    if(err){
+                        return reject(err);
+                    }
+                    return resolve();
+                })
+            })
+
         })
         .catch((err)=>{
             return this.emitError(err);
@@ -438,7 +464,12 @@ class BotSocket{
 
     }
     onClientNotFiring(payload){
-        //Delete the user?
+
+        switch(payload.username){
+            case('adam-0'):
+                return;
+            default:
+        }
         return new Promise((resolve, reject)=>{
             if(!payload.username){
                 return reject(new Error("No payload.username "));
@@ -474,7 +505,7 @@ class BotSocket{
 
                 console.log("Removing  " +payload.username + " for not firing after 30");
                 bot.alive = false;
-                if(bot.generation < 3){
+                if(bot.generation < 3 && !bot.flagged){
                     return bot.remove/*.save*/((err)=>{
                         //console.log("Removing  " +payload.username + " SAVED - ", err, bot && bot.toJSON());
                         if(err){
@@ -582,8 +613,12 @@ class BotSocket{
 
 
             })
-        }else{
+        }else if(Math.round(Math.random()) == 1){
             p = this.getInActiveUser();
+        }else{
+            p = new Promise((resolve, reject)=>{
+                return resolve();
+            })
         }
 
         return p.then((bot)=>{

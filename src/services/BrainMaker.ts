@@ -34,6 +34,7 @@ class BrainMaker{
             'placeBlock',
             'equip',
             'equip',
+            'equip',
             'walkTo',
             'tossStack',
             //'equipAndPlace',
@@ -43,7 +44,7 @@ class BrainMaker{
             'lookAt',
             'dig',
             'placeBlock',
-            'equip',
+
             'attack',
             'activateItem',
             //'deactivateItem',
