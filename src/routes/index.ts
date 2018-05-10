@@ -55,9 +55,9 @@ class Routes{
                 generation: req.params._bot.generation
             }
             let brainMaker = new BrainMaker();
-            let brainData = brainMaker.create(options);
+            //let brainData = brainMaker.create(options);
             let brainholder = {};
-            const TEST_LENGTH = 20;
+            const TEST_LENGTH = 10;
             for(var i = 0; i < TEST_LENGTH; i++){
 
                 brainholder[i] = brainMaker.create({

@@ -320,15 +320,10 @@ class BrainMaker{
         //Iterate through all nodes
         Object.keys(this.indexedNodes).forEach((key)=>{
             let node = this.indexedNodes[key];
-            if(node.id == 'output_11'){
-                console.log("XXX");
-            }
+
             if(node.dependants){
                 let removeIndexes = [];
                 node.dependants.forEach((dependant, index)=>{
-                    if(dependant.id == 'middle_3_0_1'){
-                        console.log("XXX");
-                    }
                     let childNode = this.indexedNodes[dependant.id];
                     if(!childNode || !childNode._depended){
                         removeIndexes.push(index);
@@ -385,13 +380,11 @@ class BrainMaker{
         //If dependants < 2 remove middle node
     }
     sanityCheckOutputNode(dependantNode, parentNode?){
-        console.log("TESTING: ", dependantNode.id);
-        if(dependantNode.id == 'middle_3_0_1'){
-            console.log("XXX");
-        }
+        //console.log("TESTING: ", dependantNode.id);
+
         let hasInput = false;
         if(!dependantNode.dependants){
-            console.log("RESULTS(No dependants): ", dependantNode._depended);
+            //console.log("RESULTS(No dependants): ", dependantNode._depended);
             return false;
         }
 
@@ -403,12 +396,12 @@ class BrainMaker{
             if(node.base_type == 'input'){
                 hasInput = true;
                 node._depended = true;
-                console.log("INPUT DEPENDED:", node.id);
+                //console.log("INPUT DEPENDED:", node.id);
                 return;
             }
             hasInput = this.sanityCheckOutputNode(node, dependantNode);
             if(hasInput){
-                console.log("MIDDLE DEPENDED:", node.id);
+                //console.log("MIDDLE DEPENDED:", node.id);
                 node._depended = true;
             }
         })
@@ -421,7 +414,7 @@ class BrainMaker{
                 dependantNode._depended = false;
             }
         }
-        console.log("RESULTS: ", dependantNode._depended);
+        //console.log("RESULTS: ", dependantNode._depended);
         return hasInput;
 
     }
