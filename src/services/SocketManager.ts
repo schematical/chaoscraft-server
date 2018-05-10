@@ -4,7 +4,8 @@ import * as debug from 'debug';
 import { iBot } from '../models/Bot';
 import { App } from '../App'
 import * as fs from 'fs'
-import { BrainMaker } from '../services/BrainMaker'
+import { BrainMaker } from './BrainMaker'
+import { FitnessManager } from './FitnessManager'
 import * as config from 'config'
 import * as replaceall from 'replaceall'
 import * as SocketRedis from 'socket.io-redis'
@@ -92,9 +93,15 @@ class BotSocket{
     protected bot: iBot = null;
     protected socket:any = null;
     protected sm:SocketManager = null;
+    protected fitnessManager:FitnessManager = null;
     constructor(options:any){
+
         this.socket = options.socket;
         this.sm = options.socketManager;
+        this.fitnessManager = new FitnessManager({
+            botSocket: this,
+            app: this.sm.app
+        });
 
         this.socket.join('clients');
         this.socket.on('disconnect', ()=>{
@@ -270,6 +277,9 @@ class BotSocket{
             return this.updateBrainWithNodeData(payload);
         })
         .then(()=>{
+            return this.fitnessManager.testFitness(this.bot, payload);
+        })
+        /*.then(()=>{
             return new Promise((resolve, reject)=>{
 
                 let multi = this.sm.app.redis.clients.chaoscraft.multi();
@@ -363,7 +373,7 @@ class BotSocket{
                 })
             })
 
-        })
+        })*/
         .catch((err)=>{
             return this.emitError(err);
         })
@@ -414,7 +424,6 @@ class BotSocket{
             usernameBase = usernameBase.substr(0, 13 - generationAndHeritage.length);
         }
 
-        //let alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         let promises = [];
         let litterSize = Math.floor(<number>config.get('brain.max_litter_size') * Math.random());
         for(let i = 0; i < litterSize; i++){
@@ -743,14 +752,12 @@ class BotSocket{
                             queryUsernames.push(username);
                         }
                     });
-                   /* if(!_.contains(queryUsernames, 'adam-0')){
-                        query.username = 'adam-0';
-                    }else{*/
-                        query.username =  {
-                            $nin: queryUsernames
-                        };
-                        query.alive = true;
-                   // }
+
+                    query.username =  {
+                        $nin: queryUsernames
+                    };
+                    query.alive = true;
+
 
 
 
@@ -789,4 +796,4 @@ class WWWSocket{
 
     }
 }
-export { SocketManager }
+export { SocketManager, BotSocket }

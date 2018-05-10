@@ -326,9 +326,11 @@ class Routes{
                 'food_age',
                 'attack',
                 'craft',
+                'craft_attempt',
                 'loaded_count',
                 'age',
-                'equip'
+                'equip',
+
             ]
             stat_keys.forEach((key)=>{
                 multi.hgetall('/stats/' + key);
