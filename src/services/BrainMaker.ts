@@ -9,6 +9,7 @@ import {
 } from 'chaoscraft-shared'
 import * as config from 'config'
 import * as MinecraftData from 'minecraft-data';
+import * as _ from 'underscore';
 class BrainMaker{
     protected nodeLayers:any = {}
     protected minecraftData = null;
@@ -216,7 +217,7 @@ class BrainMaker{
         if(!options.generation) {
             this.setupBasicInstincts();
         }
-
+        this.sanityCheck();
 
         let brainData = {};
 
@@ -242,6 +243,7 @@ class BrainMaker{
         this.nodeLayers.outputs.forEach((node)=>{
             addNode(node);
         })
+
         return brainData;
 
     }
@@ -305,6 +307,123 @@ class BrainMaker{
         }
         this.indexedNodes[outputNode.id] = outputNode;
         this.nodeLayers.outputs.push(outputNode)
+
+    }
+    sanityCheck(){
+
+        //Iterate through outputs
+        //Mark child nodes as `_depended`
+        this.nodeLayers.outputs.forEach((node)=>{
+            this.sanityCheckOutputNode(node);
+        })
+
+        //Iterate through all nodes
+        Object.keys(this.indexedNodes).forEach((key)=>{
+            let node = this.indexedNodes[key];
+            if(node.id == 'output_11'){
+                console.log("XXX");
+            }
+            if(node.dependants){
+                let removeIndexes = [];
+                node.dependants.forEach((dependant, index)=>{
+                    if(dependant.id == 'middle_3_0_1'){
+                        console.log("XXX");
+                    }
+                    let childNode = this.indexedNodes[dependant.id];
+                    if(!childNode || !childNode._depended){
+                        removeIndexes.push(index);
+                    }
+                })
+                removeIndexes.forEach((index)=>{
+                    node.dependants.splice(index,1);
+                })
+            }
+            if(node._depended) {
+                return;
+            }
+            let nodeCollection = null;
+            switch(node.base_type){
+                case('output'):
+                    nodeCollection = this.nodeLayers.outputs;
+                break;
+                case('input'):
+                    nodeCollection = this.nodeLayers.inputs;
+                break;
+                case('middle'):
+                    //nodeCollection = this.nodeLayers.outputs;
+                break;
+                default:
+                    throw new Error("Invalid node.base_type: " + node.base_type);
+            }
+            if(nodeCollection) {
+                let nodeFoundIndex = null;
+                nodeCollection.forEach((childNode, index) => {
+                    if (childNode.id !== node.id) {
+                        return;
+                    }
+                    nodeFoundIndex = index;
+
+                })
+                if (_.isNull(nodeFoundIndex) ) {
+                    console.error("Node not found: " + node.id);
+                }else{
+                    nodeCollection.splice(nodeFoundIndex, 1);
+                }
+            }
+            console.log("Removing: ", key);
+            delete(this.indexedNodes[key]);
+
+
+        })
+        Object.keys(this.indexedNodes).forEach((key)=>{
+            //delete(this.indexedNodes[key]._depended)
+        })
+        //Omit outputs as they have already been tested
+        //Delete any node not marked as `_depended`
+        //Remove the `_depended` variable
+
+        //If dependants < 2 remove middle node
+    }
+    sanityCheckOutputNode(dependantNode, parentNode?){
+        console.log("TESTING: ", dependantNode.id);
+        if(dependantNode.id == 'middle_3_0_1'){
+            console.log("XXX");
+        }
+        let hasInput = false;
+        if(!dependantNode.dependants){
+            console.log("RESULTS(No dependants): ", dependantNode._depended);
+            return false;
+        }
+
+        dependantNode.dependants.forEach((_dependantNode, index)=>{
+            let node = this.indexedNodes[_dependantNode.id];
+            if(node.base_type == 'output'){
+                throw new Error("WTF?!?!");
+            }
+            if(node.base_type == 'input'){
+                hasInput = true;
+                node._depended = true;
+                console.log("INPUT DEPENDED:", node.id);
+                return;
+            }
+            hasInput = this.sanityCheckOutputNode(node, dependantNode);
+            if(hasInput){
+                console.log("MIDDLE DEPENDED:", node.id);
+                node._depended = true;
+            }
+        })
+        //Delete middle nodes with out inputs
+
+        if(hasInput){
+            dependantNode._depended = true;
+            if(parentNode && dependantNode.dependants.length == 1){
+                parentNode.dependants = dependantNode.dependants;
+                dependantNode._depended = false;
+            }
+        }
+        console.log("RESULTS: ", dependantNode._depended);
+        return hasInput;
+
     }
     randInput(options:any){
         let inputKeyIndex = Math.floor(Math.random() * this.INPUT_KEYS.length);
@@ -446,6 +565,7 @@ class BrainMaker{
         return inputNode;
 
     }
+
     randOutput(options:any){
         let outputKeyIndex = Math.floor(Math.random() * this.OUTPUT_KEYS.length);
         let output = this.OUTPUT_KEYS[outputKeyIndex];

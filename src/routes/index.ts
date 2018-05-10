@@ -56,9 +56,18 @@ class Routes{
             }
             let brainMaker = new BrainMaker();
             let brainData = brainMaker.create(options);
+            let brainholder = {};
+            const TEST_LENGTH = 20;
+            for(var i = 0; i < TEST_LENGTH; i++){
 
+                brainholder[i] = brainMaker.create({
+                    brainData: brainholder[i - 1] || null,
+                    generation: i
+                });
 
-            return res.json(brainData);
+            }
+
+            return res.json(brainholder[TEST_LENGTH - 1]);
         });
 
         app.express.post('/reset', (req, res, next) => {
