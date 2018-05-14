@@ -388,7 +388,7 @@ class BotSocket{
                     return console.error(this.bot.username + ' - has no brain nodeId: ' + nodeId)
                 }
                 brain[nodeId].activationCount =  brain[nodeId].activationCount || 0;
-                brain[nodeId].activationCount += nodeInfo.activationCount;
+                //brain[nodeId].activationCount += nodeInfo.activationCount;
                 if(brain[nodeId].activationCount == 0){
                     delete(brain[nodeId]);
                 }
@@ -622,17 +622,23 @@ class BotSocket{
 
 
             })
-        }else if(Math.round(Math.random()) == 1){
+        }else /*if(Math.round(Math.random()) == 1)*/{
             p = this.getInActiveUser();
-        }else{
+        /*}else{
             p = new Promise((resolve, reject)=>{
                 return resolve();
-            })
+            })*/
         }
 
         return p.then((bot)=>{
             if(bot){
-                return bot;
+                if(bot.generation == 0){
+                    return bot;
+                }
+                if(Math.round(Math.random()) == 1){
+                    return bot;
+                }
+                bot = null;
             }
 
             return new Promise((resolve, reject)=>{

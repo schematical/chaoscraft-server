@@ -18,7 +18,7 @@ class BrainMaker{
     protected indexedNodes:any = {};
     public create(options){
         options.length =  options.length || config.get('brain.length');
-        options.generation = options.generation || null;
+        options.generation = options.generation || 0;
         options.maxChainLength = options.maxChainLength || config.get('brain.maxChainLength');
         options.inputNodePool = options.inputNodePool || config.get('brain.inputNodePool');
 
@@ -92,8 +92,6 @@ class BrainMaker{
         for(let i = 0; i < newMaxOutputLength - decayNodesLength; i++){
             //Start with an input
 
-
-
             this.nodeLayers[i] = [];
             for(let ii = 0; ii < options.maxChainLength; ii++){
 
@@ -112,6 +110,7 @@ class BrainMaker{
             //Load brain data into nodes
             Object.keys(options.brainData).forEach((nodeId)=>{
                 let node = options.brainData[nodeId];
+
                 node.id = nodeId;
                 switch(node.base_type){
                     case('output'):
@@ -130,11 +129,25 @@ class BrainMaker{
             })
         }
 
+        this.nodeLayers.outputs = _.sortBy(this.nodeLayers.outputs, (node)=>{
+            return (0 - node.activationCount);/*outputFiredCount;*/
+        });
+
         for(let i = 0; i < decayNodesLength; i++){
-            //Pick random outputnodes and remove them
-            let index = Math.floor(this.nodeLayers.outputs.length * Math.random());
-            this.nodeLayers.outputs.splice(index, 1);
-            //Ideally during the final phase the dependants will be removed
+            let index:number = null;
+            switch(config.get('brain.outputs_remove_mode')){
+                case('in_active'):
+                     index = this.nodeLayers.outputs.length - 1;
+                    this.nodeLayers.outputs.splice(index, 1);
+                break;
+                default:
+                case('random'):
+                    //Pick random outputnodes and remove them
+                    index = Math.floor(this.nodeLayers.outputs.length * Math.random());
+                    this.nodeLayers.outputs.splice(index, 1);
+                    //Ideally during the final phase the dependants will be removed
+            }
+
         }
         let neededOutputs = newMaxOutputLength - this.nodeLayers.outputs.length;
 
@@ -241,6 +254,7 @@ class BrainMaker{
             })
         }
         this.nodeLayers.outputs.forEach((node)=>{
+            node.activationCount/*outputFiredCount*/ = 0;
             addNode(node);
         })
 
@@ -371,7 +385,7 @@ class BrainMaker{
 
         })
         Object.keys(this.indexedNodes).forEach((key)=>{
-            //delete(this.indexedNodes[key]._depended)
+            delete(this.indexedNodes[key]._depended)
         })
         //Omit outputs as they have already been tested
         //Delete any node not marked as `_depended`

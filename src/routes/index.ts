@@ -50,15 +50,16 @@ class Routes{
             if(!req.params._bot){
                 return res.status(404).json({});
             }
-            let options = {
+            /*let options = {
                 brainData: JSON.parse(req.params._bot.brain),
                 generation: req.params._bot.generation
-            }
+            }*/
             let brainMaker = new BrainMaker();
             //let brainData = brainMaker.create(options);
             let brainholder = {};
+            brainholder[req.params._bot.generation] = JSON.parse(req.params._bot.brain);
             const TEST_LENGTH = 10;
-            for(var i = 0; i < TEST_LENGTH; i++){
+            for(var i = req.params._bot.generation + 1; i < TEST_LENGTH; i++){
 
                 brainholder[i] = brainMaker.create({
                     brainData: brainholder[i - 1] || null,
@@ -339,6 +340,7 @@ class Routes{
                 'loaded_count',
                 'age',
                 'equip',
+                'equip_attempt',
 
             ]
             stat_keys.forEach((key)=>{
