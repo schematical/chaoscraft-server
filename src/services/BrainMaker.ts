@@ -322,6 +322,39 @@ class BrainMaker{
         this.indexedNodes[outputNode.id] = outputNode;
         this.nodeLayers.outputs.push(outputNode)
 
+
+
+
+
+
+        //Equip some stuff
+        inputNode = {
+            id:'input_' +this.nodeLayers.inputs.length,
+            base_type:'input',
+            type:Enum.InputTypes.hasInInventory,
+            target:{
+                type:'block',
+                block:[1,2,3,4,5,6,7, 12,13,14]
+            }
+        }
+        this.indexedNodes[inputNode.id] = inputNode;
+        this.nodeLayers.inputs.push(inputNode)
+
+        outputNode = {
+            id:'output_' + this.nodeLayers.outputs.length,
+            base_type:'output',
+            type:'equip',
+            dependants:[{
+                id: inputNode.id
+            }]
+        }
+        this.indexedNodes[outputNode.id] = outputNode;
+        this.nodeLayers.outputs.push(outputNode)
+
+
+
+
+
     }
     sanityCheck(){
 

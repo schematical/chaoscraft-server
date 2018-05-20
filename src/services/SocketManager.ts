@@ -641,6 +641,7 @@ class BotSocket{
                 bot = null;
             }
 
+
             return new Promise((resolve, reject)=>{
                 let names = fs.readFileSync(__dirname + '/../../config/names.csv').toString().split('\n')
                 let name = names[Math.floor(Math.random() * names.length)].split(',')[1];
