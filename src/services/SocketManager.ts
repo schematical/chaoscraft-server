@@ -389,9 +389,11 @@ class BotSocket{
                 }
                 brain[nodeId].activationCount =  brain[nodeId].activationCount || 0;
                 //brain[nodeId].activationCount += nodeInfo.activationCount;
-                if(brain[nodeId].activationCount == 0){
+               /*
+               //THE fOLLOWING LINE OF CODE IS THE DEVIL
+               if(brain[nodeId].activationCount == 0){
                     delete(brain[nodeId]);
-                }
+                }*/
             })
 
             this.bot.brain = JSON.stringify(brain);
