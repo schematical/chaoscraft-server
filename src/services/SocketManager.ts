@@ -444,6 +444,7 @@ class BotSocket{
                     brain: JSON.stringify(brainData),
                     generation:generation,
                     mother: this.bot._id,
+                    spawnPriority: generation,
                     shortid: _shortid
                 })
                 return childBot.save((err:Error, bot:iBot)=>{
