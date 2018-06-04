@@ -11,7 +11,8 @@ module.exports = {
         passOnAdd: .1,//The percentage of nodes to add on
         max_litter_size: 10,
         spawn_children_pong_ct: 20,//5x a day
-        outputs_remove_mode:'random'
+        outputs_remove_mode:'random',
+        max_visibility_range: 10,
     },
     minecraft:{
         version:'1.12.2'

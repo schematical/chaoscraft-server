@@ -6,10 +6,11 @@ import {
     MiddleNodeBase,
     NodeDependantRelationship,
     Enum
-} from 'chaoscraft-shared'
+} from 'chaoscraft-shared';
 import * as config from 'config'
 import * as MinecraftData from 'minecraft-data';
 import * as _ from 'underscore';
+
 class BrainMaker{
     protected nodeLayers:any = {}
     protected minecraftData = null;
@@ -27,28 +28,21 @@ class BrainMaker{
         this.INPUT_KEYS = Object.keys(Enum.InputTypes);
         //this.OUTPUT_KEYS = Object.keys(Enum.OutputTypes);
         this.OUTPUT_KEYS = [
-            'dig',
-            'dig',
             'placeBlock',
-            'placeBlock',
-            'placeBlock',
-            'placeBlock',
-            'equip',
-            'equip',
             'equip',
             'walkTo',
             'tossStack',
-            //'equipAndPlace',
-            'walkForward',
-            'walkBack',
+
             'stopWalking',
-            'lookAt',
+            //'lookAt',
             'dig',
             'placeBlock',
 
             'attack',
             'activateItem',
             //'deactivateItem',
+            'walkForward',
+            'walkBack',
             'walkLeft',
             'walkRight',
             'jump',
@@ -485,14 +479,16 @@ class BrainMaker{
             case(Enum.InputTypes.blockBreakProgressEnd):
             case(Enum.InputTypes.blockBreakProgressObserved):
             case(Enum.InputTypes.chestLidMove):
-            case(Enum.InputTypes.canSeeBlock):
+            case(Enum.InputTypes.blockAt):
+           /* case(Enum.InputTypes.canSeeBlock):
             case(Enum.InputTypes.canDigBlock):
             case(Enum.InputTypes.canTouchBlock):
             case(Enum.InputTypes.isOn):
-
+*/
                 inputNode.target = {
                     type:'block',
-                    block: []//this.randBlock().id
+                    block: [],
+                    position: PositionDeltaRange.genRandom({})
                 }
                 if(input == Enum.InputTypes.canSeeBlock){
                     inputNode.target.maxDistance = Math.floor(Math.random() * 20);
@@ -501,20 +497,15 @@ class BrainMaker{
                 for(let i = 0; i < config.get('brain.maxTargets'); i++){
                     inputNode.target.block.push(this.randBlock().id);
                 }
-                break;
-            case(Enum.InputTypes.isIn):
-                inputNode.target = {
-                    type:'block',
-                    block: [8,9]//Water
-                }
             break;
 
+            case(Enum.InputTypes.entityAt):
             case(Enum.InputTypes.entityMoved):
             case(Enum.InputTypes.entitySwingArm):
             case(Enum.InputTypes.entityHurt):
             case(Enum.InputTypes.entitySpawn):
             case(Enum.InputTypes.entityUpdate):
-            case(Enum.InputTypes.canSeeEntity):
+            //case(Enum.InputTypes.canSeeEntity):
             case(Enum.InputTypes.playerCollect):
                 switch(Math.floor(Math.random() * 3)){
                     case(0):
@@ -548,9 +539,9 @@ class BrainMaker{
                     default:
                         throw new Error("Your math is off");
                 }
+                inputNode.position = PositionDeltaRange.genRandom({});
 
-
-                break;
+            break;
 
             case(Enum.InputTypes.hasInInventory):
             case(Enum.InputTypes.hasEquipped):
@@ -572,8 +563,9 @@ class BrainMaker{
                         inputNode.target.block.push(this.randBlock().id);
                     }
                 }
+                inputNode.slot = Math.round(Math.random() * 9);
 
-                break;
+            break;
             case(Enum.InputTypes.hasRecipeInInventory):
                 inputNode.target = {
                     type:'recipe',
@@ -619,9 +611,6 @@ class BrainMaker{
             dependants:[]
         }
         switch(output) {
-            case(Enum.OutputTypes.navigateTo):
-                outputNode.type = Enum.OutputTypes.walkForward;
-            break;
             case(Enum.OutputTypes.equip):
                 outputNode.destination = 'hand';
             break;
@@ -640,6 +629,48 @@ class BrainMaker{
     randRecipe(){
         let rKeys = Object.keys(this.minecraftData.recipes);
         return /*this.minecraftData.recipes[*/rKeys[Math.floor(Math.random() * rKeys.length)]/*]*/;
+    }
+}
+class PositionDeltaRange{
+    public xDelta:any;
+    public yDelta:any;
+    public zDelta:number;
+    constructor(options){
+        this.xDelta = options.xDelta;
+        this.yDelta = options.yDelta;
+        this.zDelta = options.zDelta;
+    }
+    public static genRandom(options){
+
+        let rangeData:any = {};
+
+        rangeData.xDetla = PositionDeltaRange.getRandomSingleRange(options);
+
+        rangeData.yDetla = PositionDeltaRange.getRandomSingleRange(options);
+
+        rangeData.zDetla = PositionDeltaRange.getRandomSingleRange(options);
+
+    }
+    public static getRandomSingleRange(options){
+        options.maxVisibilityRange = options.maxVisibilityRange || <number>config.get('brain.max_visibility_range');
+        let range:any = {
+            start: Math.round(Math.random() * options.maxVisibilityRange * 2) - options.maxVisibilityRange
+        }
+
+        range.end = (Math.round(Math.random() * ((options.maxVisibilityRange * 2)  - range.start)) - options.maxVisibilityRange) + range.start;
+        return range;
+    }
+    toObject(){
+        return {
+            xDelta: this.xDelta,
+            yDelta: this.yDelta,
+            zDelta: this.zDelta,
+        }
+
+    }
+    match(location){
+
+
     }
 }
 export { BrainMaker }

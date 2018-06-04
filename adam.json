@@ -262,7 +262,15 @@
     "type":"canSeeBlock",
     "target":{
       "type":"block",
-      "block":[54]
+      "block":[54],
+      "positionDelta":{
+        "xDeltaStart":-10,
+        "xDetlaEnd": 10,
+        "yDeltaStart":0,
+        "yDeltaEnd":0,
+        "zDeltaStart":-10,
+        "zDeltaEnd":10
+      }
     }
   },
   "output20":{
