@@ -406,7 +406,7 @@ class BrainMaker{
                     nodeCollection.splice(nodeFoundIndex, 1);
                 }
             }
-            console.log("Removing: ", key);
+            //console.log("Removing: ", key);
             delete(this.indexedNodes[key]);
 
 
@@ -488,7 +488,7 @@ class BrainMaker{
                 inputNode.target = {
                     type:'block',
                     block: [],
-                    position: PositionDeltaRange.genRandom({})
+                    position: PositionDeltaRange.genRandom({}).toObject()
                 }
                 if(input == Enum.InputTypes.canSeeBlock){
                     inputNode.target.maxDistance = Math.floor(Math.random() * 20);
@@ -539,7 +539,7 @@ class BrainMaker{
                     default:
                         throw new Error("Your math is off");
                 }
-                inputNode.position = PositionDeltaRange.genRandom({});
+                inputNode.position = PositionDeltaRange.genRandom({}).toObject();
 
             break;
 
@@ -608,13 +608,31 @@ class BrainMaker{
             id:options.id,
             base_type:'output',
             type:output,
-            dependants:[]
+            dependants:[],
+
         }
         switch(output) {
             case(Enum.OutputTypes.equip):
                 outputNode.destination = 'hand';
+                outputNode.slot
             break;
         }
+        outputNode.target = {};
+
+        outputNode.target.position = new PositionDeltaRange({
+            xDelta:{
+                min: -1,
+                max: 1
+            },
+            yDelta:{
+                min: -1,
+                max: 1
+            },
+            zDelta:{
+                min: -1,
+                max: 1
+            },
+        })
         return outputNode;
     }
     randBlock(){
@@ -628,7 +646,7 @@ class BrainMaker{
     }
     randRecipe(){
         let rKeys = Object.keys(this.minecraftData.recipes);
-        return /*this.minecraftData.recipes[*/rKeys[Math.floor(Math.random() * rKeys.length)]/*]*/;
+        return rKeys[Math.floor(Math.random() * rKeys.length)];
     }
 }
 class PositionDeltaRange{
@@ -644,20 +662,24 @@ class PositionDeltaRange{
 
         let rangeData:any = {};
 
-        rangeData.xDetla = PositionDeltaRange.getRandomSingleRange(options);
+        rangeData.xDelta = PositionDeltaRange.getRandomSingleRange(options);
 
-        rangeData.yDetla = PositionDeltaRange.getRandomSingleRange(options);
+        rangeData.yDelta = PositionDeltaRange.getRandomSingleRange(options);
 
-        rangeData.zDetla = PositionDeltaRange.getRandomSingleRange(options);
+        rangeData.zDelta = PositionDeltaRange.getRandomSingleRange(options);
+        return new PositionDeltaRange(rangeData);
 
     }
     public static getRandomSingleRange(options){
         options.maxVisibilityRange = options.maxVisibilityRange || <number>config.get('brain.max_visibility_range');
         let range:any = {
-            start: Math.round(Math.random() * options.maxVisibilityRange * 2) - options.maxVisibilityRange
+            min: Math.round(Math.random() * options.maxVisibilityRange * 2) - options.maxVisibilityRange
         }
 
-        range.end = (Math.round(Math.random() * ((options.maxVisibilityRange * 2)  - range.start)) - options.maxVisibilityRange) + range.start;
+        let remainingSpan  = (options.maxVisibilityRange  - range.min);
+        range.max = (
+            Math.round(Math.random() * remainingSpan) + range.min
+        )
         return range;
     }
     toObject(){
