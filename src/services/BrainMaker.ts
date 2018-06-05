@@ -614,7 +614,65 @@ class BrainMaker{
         switch(output) {
             case(Enum.OutputTypes.equip):
                 outputNode.destination = 'hand';
-                outputNode.slot
+
+            break;
+            case(Enum.OutputTypes.craft):
+                outputNode.target = {
+                    type:'recipe',
+                    recipe: []//this.randItem().id
+                }
+                for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                    let recipe = this.randRecipe();
+                    outputNode.target.recipe.push(recipe);//We convert this to a real recipe list on the other side
+                }
+            break;
+            case(Enum.OutputTypes.attack):
+                outputNode.target = {
+                    entityType: ['mob']
+                }
+            break;
+            case(Enum.OutputTypes.openChest):
+                outputNode.target = {
+                    block:[54]
+                }
+            break;
+            case(Enum.OutputTypes.openFurnace):
+                outputNode.target = {
+                    block:[
+                        61,// Furnace
+                        62, //Burning Furnace
+                        343 //Minecart with Furnace
+                    ]
+                }
+            break;
+            case(Enum.OutputTypes.openDispenser):
+                outputNode.target = {
+                    block:[
+                        23
+                    ]
+                }
+            break;
+            case(Enum.OutputTypes.openEnchantmentTable):
+                outputNode.target = {
+                    block:[
+                        116
+                    ]
+                }
+            break;
+            case(Enum.OutputTypes.openEntity):
+            case(Enum.OutputTypes.activateEntity):
+            case(Enum.OutputTypes.useOn):
+                outputNode.target = {
+                    type:'entity',
+                    entityTypes: []
+                }
+                for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                    outputNode.target.entityTypes.push(this.randEntity().id);
+                }
+            break;
+            case(Enum.OutputTypes.openVillager):
+            case(Enum.OutputTypes.trade):
+
             break;
         }
         outputNode.target = {};
