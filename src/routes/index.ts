@@ -212,6 +212,78 @@ class Routes{
             return res.json(req.params._bot.toJSON());
 
         })
+
+        app.express.get('/bots/:bot/world', (req, res, next) => {
+            //Load a brain
+            if(!req.params._bot){
+                return res.status(404).json({});
+            }
+            //TODO: We need to store the bots x and y
+            return new Promise((resolve, reject)=>{
+                app.redis.clients.chaoscraft.hgetall('/bots/' + req.params._bot.username + '/position', (err, res)=>{
+                    if(err) return next(err);
+                    if(!res){
+                        return res.status(404).json({
+                            error:{
+                                message:"No `position` data found in redis"
+                            }
+                        });
+                    }
+                });
+            })
+            .then((position:any)=>{
+                let range = 20;
+                let worldData = {};
+                let responseData:any = {
+                    x:{
+                        min: position.x - range,
+                        max: position.x + range,
+                    },
+                    y:{
+                        min: position.y - range,
+                        max: position.y + range,
+                    },
+                    z:{
+                        min: position.z - range,
+                        max: position.z + range,
+                    }
+                };
+
+                return new Promise((resolve, reject)=> {
+                    let multi = app.redis.clients.chaoscraft.multi();
+                    for(let x = responseData.x.min; x <= responseData.x.max; x++){
+                        for(let y = responseData.y.min; y <= responseData.y.max; y++){
+                            for(let z = responseData.z.min; z <=  responseData.z.max + range; z++){
+                                let key = '/world/blocks/' + x +  '/' + y + '/' + z
+                                multi.hgetall(key);
+                            }
+                        }
+                    }
+                    return multi.exec((err, response)=>{
+                        if(err){
+                            return reject(err);
+                        }
+                        let i = 0;
+                        for(let x = position.x - range; x <= position.x + range; x++){
+                            worldData[x] =  worldData[x] || {};
+                            for(let y = position.y - range; y <= position.y + range; y++){
+                                worldData[x][y] =  worldData[x][y] || {};
+                                for(let z = position.z - range; z <= position.z + range; z++){
+                                    i += 1;
+                                    worldData[x][y][z] = response[i] || null;
+                                }
+                            }
+                        }
+                        responseData.world = worldData;
+                        return resolve(responseData);
+                    })
+                })
+            })
+            .then((response)=>{
+                return res.json(response);
+            })
+            .catch(next);
+        })
         app.express.get('/bots/:bot/world/top', (req, res, next) => {
             //Load a brain
             if(!req.params._bot){

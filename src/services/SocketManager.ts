@@ -214,6 +214,13 @@ class BotSocket{
         let multi = this.sm.app.redis.clients.chaoscraft.multi();
         multi.hincrby('/bots/' + payload.username + '/stats', payload.type, payload.value || 1);
         multi.hincrby('/stats/' + payload.type, payload.username, payload.value || 1);
+        switch(payload.type){
+            case('dig'):
+            case('place_block'):
+                //Update block, add username
+                let key = '/world/blocks/' + payload.target.position.x + '/' + payload.target.position.y + '/' + payload.target.position.z;
+                multi.hset(key, 'modified_by', payload.username);
+        }
         multi.exec((err)=>{
             if(err){
                 return this.emitError(err);
