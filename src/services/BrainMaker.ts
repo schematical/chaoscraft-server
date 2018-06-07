@@ -93,7 +93,8 @@ class BrainMaker{
                     id: "middle_" +i + "_" + ii + "_" + options.generation,
                     "base_type":"middle",
                     "dependants":[],
-                    originGen: options.generation
+                    originGen: options.generation,
+                    weight: Math.round(Math.random() * 10)/10
                 };
                 this.nodeLayers[i].push(middleNode)
                 this.indexedNodes[middleNode.id] = middleNode;
@@ -469,7 +470,8 @@ class BrainMaker{
             id:options.id,
             base_type:'input',
             type:input,
-            target:{}
+            target:{},
+            weight: Math.round(Math.random() * 10)/10
         }
         switch(input){
 

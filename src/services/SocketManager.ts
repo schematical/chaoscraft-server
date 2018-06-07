@@ -113,6 +113,10 @@ class BotSocket{
         this.socket.on('client_pong', (payload)=>{
             this.onClientPong(payload);
         });
+        this.socket.on('update_position', (payload)=>{
+            this.onUpdatePosition(payload);
+        });
+
        /* this.socket.on('client_not_firing', (payload)=>{
             this.onClientNotFiring(payload);
         });*/
@@ -135,7 +139,76 @@ class BotSocket{
         this.socket.on('achivment', (payload)=>{
             this.onAchivement(payload);
         })
+        this.socket.on('map_nearby_response', (payload)=>{
+            this.onMapNearbyResponse(payload);
+        })
 
+    }
+    onUpdatePosition(payload){
+        let multi = this.sm.app.redis.clients.chaoscraft.multi();
+        let uri = '/bots/' + payload.username + '/position';
+        for(let i in payload){
+            multi.hset(uri, i, payload[i]);
+        }
+        multi.exec((err)=>{
+            if(err){
+                return this.emitError(err);
+            }
+            //Success
+
+        });
+    }
+    onMapNearbyResponse(payload:any){
+        let multi = this.sm.app.redis.clients.chaoscraft.multi();
+        let highestTangableBlocks = {};//Indexes are x and z
+        for(let x in payload.blockData){
+            highestTangableBlocks[x] = highestTangableBlocks[x] || {};
+            for(let y in payload.blockData[x]){
+                for(let z in payload.blockData[x][y]){
+
+                    let block = payload.blockData[x][y][z];
+                    let key = '/world/blocks/' + block.x + '/' + block.y + '/' + block.z;
+                    multi.hset(key, 'type', block.type);
+
+
+                    if(
+                        block.type !== 0 &&
+                        (
+                            !highestTangableBlocks[x][z] ||
+                            highestTangableBlocks[x][z].y < y
+                        )
+
+                    ){
+                        highestTangableBlocks[x][z] = {
+                            x: x,
+                            y: y,
+                            z: z,
+                            type: block.type
+                        }
+                    }
+
+
+
+                }
+
+            }
+        }
+        for(let x in highestTangableBlocks){
+            for(let z in highestTangableBlocks[x]){
+                let block = highestTangableBlocks[x][z];
+                multi.hset('/world/blocks/top/' + block.x + '/' + block.z, 'type', block.type);
+                multi.hset('/world/blocks/top/' + block.x + '/' + block.z, 'y', block.y);
+            }
+        }
+
+
+        multi.exec((err)=>{
+            if(err){
+                return this.emitError(err);
+            }
+            //Success
+
+        });
     }
     onAchivement(payload:any){
         let multi = this.sm.app.redis.clients.chaoscraft.multi();
@@ -793,6 +866,8 @@ class WWWSocket{
         this.sm = options.socketManager;
         this.socket.join("www");
         this.socket.on('www_ping', this.onPing.bind(this));
+        this.socket.on('client_start_observe', this.onClientStartObserve.bind(this));
+        this.socket.on('client_end_observe', this.onClientEndObserve.bind(this));
     }
     onHello(data){
         this.socket.emit('www_hello_response', {
@@ -804,6 +879,14 @@ class WWWSocket{
         this.sm.debug("Reviced `www_ping`. Pinging `clients` channel");
         this.socket.to('clients').emit('client_ping', data);
 
+    }
+    onClientStartObserve(data){
+        this.sm.debug("Reviced `turn_on_bot_debug`. Pinging `clients` channel");
+        this.socket.to('clients').emit('client_start_observe', data);
+    }
+    onClientEndObserve(data){
+        this.sm.debug("Reviced `turn_off_bot_debug`. Pinging `clients` channel");
+        this.socket.to('clients').emit('client_end_observe', data);
     }
 }
 export { SocketManager, BotSocket }
