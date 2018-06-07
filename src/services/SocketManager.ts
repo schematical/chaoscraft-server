@@ -139,6 +139,7 @@ class BotSocket{
         this.socket.on('achivment', (payload)=>{
             this.onAchivement(payload);
         })
+
         this.socket.on('map_nearby_response', (payload)=>{
             this.onMapNearbyResponse(payload);
         })
@@ -158,6 +159,9 @@ class BotSocket{
 
         });
     }
+    onMapNearbyRequest(payload:any){
+        this.socket.to('clients')
+    }
     onMapNearbyResponse(payload:any){
         let multi = this.sm.app.redis.clients.chaoscraft.multi();
         let highestTangableBlocks = {};//Indexes are x and z
@@ -167,9 +171,9 @@ class BotSocket{
                 for(let z in payload.blockData[x][y]){
 
                     let block = payload.blockData[x][y][z];
-                    let key = '/world/blocks/' + block.x + '/' + block.y + '/' + block.z;
+                    let key = '/world/blocks/' +x + '/' + y + '/' + z;
                     multi.hset(key, 'type', block.type);
-
+                    multi.expire(key, 15 * 60);
 
                     if(
                         block.type !== 0 &&
@@ -193,13 +197,13 @@ class BotSocket{
 
             }
         }
-        for(let x in highestTangableBlocks){
+        /*for(let x in highestTangableBlocks){
             for(let z in highestTangableBlocks[x]){
                 let block = highestTangableBlocks[x][z];
                 multi.hset('/world/blocks/top/' + block.x + '/' + block.z, 'type', block.type);
                 multi.hset('/world/blocks/top/' + block.x + '/' + block.z, 'y', block.y);
             }
-        }
+        }*/
 
 
         multi.exec((err)=>{
@@ -875,7 +879,9 @@ class WWWSocket{
         this.socket.on('www_ping', this.onPing.bind(this));
         this.socket.on('client_start_observe', this.onClientStartObserve.bind(this));
         this.socket.on('client_end_observe', this.onClientEndObserve.bind(this));
+        this.socket.on('map_nearby_request', this.onMapNearbyRequest.bind(this));
     }
+
     onHello(data){
         this.socket.emit('www_hello_response', {
             username: 'x',//socket.username,
@@ -894,6 +900,10 @@ class WWWSocket{
     onClientEndObserve(data){
         this.sm.debug("Reviced `turn_off_bot_debug`. Pinging `clients` channel");
         this.socket.to('clients').emit('client_end_observe', data);
+    }
+    onMapNearbyRequest(data){
+        this.sm.debug("Reviced `turn_off_bot_debug`. Pinging `clients` channel");
+        this.socket.to('clients').emit('map_nearby_request', data);
     }
 }
 export { SocketManager, BotSocket }

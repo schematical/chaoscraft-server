@@ -212,6 +212,9 @@ class Routes{
             return res.json(req.params._bot.toJSON());
 
         })
+        app.express.get('/bots/test/world', (req, res, next) => {
+            return res.json(JSON.parse(fs.readFileSync('./world.json').toString()));
+        })
 
         app.express.get('/bots/:bot/world', (req, res, next) => {
             //Load a brain
@@ -220,32 +223,33 @@ class Routes{
             }
             //TODO: We need to store the bots x and y
             return new Promise((resolve, reject)=>{
-                app.redis.clients.chaoscraft.hgetall('/bots/' + req.params._bot.username + '/position', (err, res)=>{
+                app.redis.clients.chaoscraft.hgetall('/bots/' + req.params._bot.username + '/position', (err, response)=>{
                     if(err) return next(err);
-                    if(!res){
+                    if(!response){
                         return res.status(404).json({
                             error:{
                                 message:"No `position` data found in redis"
                             }
                         });
                     }
+                    return resolve(response);
                 });
             })
             .then((position:any)=>{
-                let range = 20;
+                let range = 10;
                 let worldData = {};
                 let responseData:any = {
                     x:{
-                        min: position.x - range,
-                        max: position.x + range,
+                        min:  Math.round(position.x) - range,
+                        max: Math.round(position.x) + range,
                     },
                     y:{
-                        min: position.y - range,
-                        max: position.y + range,
+                        min: Math.round(position.y) - range,
+                        max: Math.round(position.y) + range,
                     },
                     z:{
-                        min: position.z - range,
-                        max: position.z + range,
+                        min: Math.round(position.z) - range,
+                        max: Math.round(position.z) + range,
                     }
                 };
 
@@ -264,11 +268,11 @@ class Routes{
                             return reject(err);
                         }
                         let i = 0;
-                        for(let x = position.x - range; x <= position.x + range; x++){
+                        for(let x = Math.round(position.x) - range; x <= Math.round(position.x) + range; x++){
                             worldData[x] =  worldData[x] || {};
-                            for(let y = position.y - range; y <= position.y + range; y++){
+                            for(let y = Math.round(position.y) - range; y <= Math.round(position.y) + range; y++){
                                 worldData[x][y] =  worldData[x][y] || {};
-                                for(let z = position.z - range; z <= position.z + range; z++){
+                                for(let z = Math.round(position.z) - range; z <= Math.round(position.z) + range; z++){
                                     i += 1;
                                     worldData[x][y][z] = response[i] || null;
                                 }
