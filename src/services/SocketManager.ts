@@ -17,6 +17,9 @@ class SocketManager{
     constructor(app:App, server){
         this.app = app;
         this.debug = debug('chaoscraft.socketmanager');
+       /* if(true){
+            return;
+        }*/
         this.socket = Socket(
             server,
             {
@@ -28,6 +31,9 @@ class SocketManager{
                  cookie: false*/
             }
         );
+        this.socket.on('error',(err)=>{
+            console.error("Socket Redis Error: ", err);
+        })
         this.socket.adapter(SocketRedis({
             host: config.get('redis.chaoscraft.host'),
             port: config.get('redis.chaoscraft.port')
@@ -37,12 +43,6 @@ class SocketManager{
             this.onNewConnection(socket)
         });
 
-/*        this.app.mongo.models.chaoscraft.Bot.remove({
-            //username: 'ray-charles-0'
-        }, (err:Error, bot)=>{
-           console.error(err, bot);
-
-        });*/
     }
     onNewConnection(socket){
         socket.join('main');
@@ -143,7 +143,12 @@ class BotSocket{
         this.socket.on('map_nearby_response', (payload)=>{
             this.onMapNearbyResponse(payload);
         })
-
+        this.socket.on('debug_update_entity', (payload)=>{
+            this.onDebugUpdateEntity(payload);
+        })
+    }
+    onDebugUpdateEntity(payload){
+        this.socket.to('www').emit('debug_update_entity', payload);
     }
     onUpdatePosition(payload){
         let multi = this.sm.app.redis.clients.chaoscraft.multi();
@@ -166,16 +171,17 @@ class BotSocket{
         let multi = this.sm.app.redis.clients.chaoscraft.multi();
         let highestTangableBlocks = {};//Indexes are x and z
         for(let x in payload.blockData){
-            highestTangableBlocks[x] = highestTangableBlocks[x] || {};
+            //highestTangableBlocks[x] = highestTangableBlocks[x] || {};
             for(let y in payload.blockData[x]){
                 for(let z in payload.blockData[x][y]){
 
                     let block = payload.blockData[x][y][z];
                     let key = '/world/blocks/' +x + '/' + y + '/' + z;
+                    console.log("Saving: " + key, block);
                     multi.hset(key, 'type', block.type);
                     multi.expire(key, 15 * 60);
 
-                    if(
+                    /*if(
                         block.type !== 0 &&
                         (
                             !highestTangableBlocks[x][z] ||
@@ -189,7 +195,7 @@ class BotSocket{
                             z: z,
                             type: block.type
                         }
-                    }
+                    }*/
 
 
 
@@ -722,9 +728,10 @@ class BotSocket{
                 if(bot.generation == 0){
                     return bot;
                 }
-                if(Math.round(Math.random()) == 1){
+                //TODO: Put this back in or we will never evolve bots
+                /*if(Math.round(Math.random()) == 1){
                     return bot;
-                }
+                }*/
                 bot = null;
             }
 

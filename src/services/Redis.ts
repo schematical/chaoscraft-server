@@ -3,6 +3,7 @@ import * as redis from 'redis';
 class Redis{
     protected _clients:any = {};
     constructor(){
+
         let redisConfig = config.get('redis');
 
         Object.keys(redisConfig).forEach((key)=>{

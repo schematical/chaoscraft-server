@@ -30,7 +30,6 @@ class BrainMaker{
         this.OUTPUT_KEYS = [
             'placeBlock',
             'equip',
-            'walkTo',
             'tossStack',
 
             'stopWalking',

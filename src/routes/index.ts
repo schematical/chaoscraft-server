@@ -57,7 +57,11 @@ class Routes{
             let brainMaker = new BrainMaker();
             //let brainData = brainMaker.create(options);
             let brainholder = {};
-            brainholder[req.params._bot.generation] = JSON.parse(req.params._bot.brain);
+            let brainData = JSON.parse(req.params._bot.brain);;
+            if(req.params._bot.username == 'adam-0'){
+               brainData = (JSON.parse(fs.readFileSync('./adam.json').toString()));
+            }
+            brainholder[req.params._bot.generation] = brainData
             const TEST_LENGTH = 10;
             for(var i = req.params._bot.generation + 1; i < TEST_LENGTH; i++){
 
@@ -212,8 +216,42 @@ class Routes{
             return res.json(req.params._bot.toJSON());
 
         })
+
+        app.express.get('/bots/test/brain', (req, res, next) => {
+            return res.json(JSON.parse(fs.readFileSync('./adam.json').toString()));
+        })
         app.express.get('/bots/test/world', (req, res, next) => {
             return res.json(JSON.parse(fs.readFileSync('./world.json').toString()));
+        })
+        app.express.get('/bots/test/world/debug/:y', (req, res, next) => {
+
+            app.redis.clients.chaoscraft.keys('chaoscraft:/world/blocks/top*', (err, keys)=>{
+                if(err) throw err;
+                let multi = app.redis.clients.chaoscraft.multi();
+                keys.forEach((key)=>{
+                    multi.del(key.replace('chaoscraft:',''))
+                })
+                multi.exec((err)=>{
+                    if(err) throw err;
+                    console.log("!!!! Debug key cleanup complete!!!!");
+                })
+            })
+
+            let data = JSON.parse(fs.readFileSync('./world.json').toString());
+            let responseCsv = '';
+            let yCount = req.params.y;
+            for(let x in data.world){
+                let layerHit = false;
+                for(let y in data.world[x]){
+                    if(yCount == y) {
+                        for (let z in data.world[x][y]) {
+                            responseCsv += data.world[x][y][z].type +','
+                        }
+                    }
+                }
+                responseCsv += "\n"
+            }
+            return res.send(responseCsv);
         })
 
         app.express.get('/bots/:bot/world', (req, res, next) => {
@@ -257,8 +295,9 @@ class Routes{
                     let multi = app.redis.clients.chaoscraft.multi();
                     for(let x = responseData.x.min; x <= responseData.x.max; x++){
                         for(let y = responseData.y.min; y <= responseData.y.max; y++){
-                            for(let z = responseData.z.min; z <=  responseData.z.max + range; z++){
+                            for(let z = responseData.z.min; z <=  responseData.z.max; z++){
                                 let key = '/world/blocks/' + x +  '/' + y + '/' + z
+                                console.log("Searching for: " + key);
                                 multi.hgetall(key);
                             }
                         }
@@ -268,17 +307,42 @@ class Routes{
                             return reject(err);
                         }
                         let i = 0;
-                        for(let x = Math.round(position.x) - range; x <= Math.round(position.x) + range; x++){
+                        for(let x = responseData.x.min; x <= responseData.x.max; x++){
                             worldData[x] =  worldData[x] || {};
-                            for(let y = Math.round(position.y) - range; y <= Math.round(position.y) + range; y++){
+                            for(let y = responseData.y.min; y <= responseData.y.max; y++){
                                 worldData[x][y] =  worldData[x][y] || {};
-                                for(let z = Math.round(position.z) - range; z <= Math.round(position.z) + range; z++){
+                                for(let z = responseData.z.min; z <= responseData.z.max; z++){
                                     i += 1;
+                                    if(!response[i]){
+                                        console.error("Missing: ", x, y, z, ' - ' + i);
+                                    }
                                     worldData[x][y][z] = response[i] || null;
                                 }
                             }
                         }
+                        responseData.position = position;
                         responseData.world = worldData;
+
+
+                        //DEBUG
+                        let responseCsv = '';
+
+                        for(let x in responseData.world){
+                            let layerHit = false;
+                            for(let y in responseData.world[x]){
+                                if(!layerHit) {
+                                    for (let z in responseData.world[x][y]) {
+                                        responseCsv += responseData.world[x][y][z] ? responseData.world[x][y][z].type +',' : 'x'
+                                    }
+                                    layerHit = true;
+                                }
+                            }
+                            responseCsv += "\n"
+                        }
+                        let fs = require('fs');
+                        fs.writeFileSync('./debug.csv', responseCsv);
+
+
                         return resolve(responseData);
                     })
                 })
