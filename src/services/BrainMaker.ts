@@ -615,7 +615,18 @@ class BrainMaker{
         switch(output) {
             case(Enum.OutputTypes.equip):
                 outputNode.destination = 'hand';
-
+                let rand = Math.round(Math.random());
+                if(rand === 0){
+                    outputNode.target = {
+                        type:'block',
+                        item: this.randBlock()
+                    }
+                }else{
+                    outputNode.target = {
+                        type:'item',
+                        item: this.randItem()
+                    }
+                }
             break;
             case(Enum.OutputTypes.craft):
                 outputNode.target = {

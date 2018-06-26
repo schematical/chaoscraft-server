@@ -174,28 +174,31 @@ class BotSocket{
             //highestTangableBlocks[x] = highestTangableBlocks[x] || {};
             for(let y in payload.blockData[x]){
                 for(let z in payload.blockData[x][y]){
-
                     let block = payload.blockData[x][y][z];
-                    let key = '/world/blocks/' +x + '/' + y + '/' + z;
-                    console.log("Saving: " + key, block);
-                    multi.hset(key, 'type', block.type);
-                    multi.expire(key, 15 * 60);
+                    if(block){
 
-                    /*if(
-                        block.type !== 0 &&
-                        (
-                            !highestTangableBlocks[x][z] ||
-                            highestTangableBlocks[x][z].y < y
-                        )
+                        let key = '/world/blocks/' +x + '/' + y + '/' + z;
+                        console.log("Saving: " + key, block);
+                        multi.hset(key, 'type', block.type);
+                        multi.expire(key, 15 * 60);
 
-                    ){
-                        highestTangableBlocks[x][z] = {
-                            x: x,
-                            y: y,
-                            z: z,
-                            type: block.type
-                        }
-                    }*/
+                        /*if(
+                         block.type !== 0 &&
+                         (
+                         !highestTangableBlocks[x][z] ||
+                         highestTangableBlocks[x][z].y < y
+                         )
+
+                         ){
+                         highestTangableBlocks[x][z] = {
+                         x: x,
+                         y: y,
+                         z: z,
+                         type: block.type
+                         }
+                         }*/
+
+                    }
 
 
 
@@ -228,6 +231,9 @@ class BotSocket{
             case('dig'):
             case('place_block'):
                 //Update block, add username
+                if(!payload.target){
+                    return console.error("TODO: Fix this, we moved the target a bit");
+                }
                 let key = '/world/blocks/' + payload.target.position.x + '/' + payload.target.position.y + '/' + payload.target.position.z;
                 multi.hset(key, 'modified_by', payload.username);
         }
@@ -715,12 +721,12 @@ class BotSocket{
 
 
             })
-        }else /*if(Math.round(Math.random()) == 1)*/{
+        }else if(Math.round(Math.random()) == 1){
             p = this.getInActiveUser();
-        /*}else{
-            p = new Promise((resolve, reject)=>{
+        }else{
+            p = new Promise((resolve, retject)=>{
                 return resolve();
-            })*/
+            })
         }
 
         return p.then((bot)=>{
@@ -729,9 +735,9 @@ class BotSocket{
                     return bot;
                 }
                 //TODO: Put this back in or we will never evolve bots
-                /*if(Math.round(Math.random()) == 1){
+                if(Math.round(Math.random()) == 1){
                     return bot;
-                }*/
+                }
                 bot = null;
             }
 
@@ -888,6 +894,7 @@ class WWWSocket{
         this.socket.on('client_end_observe', this.onClientEndObserve.bind(this));
         this.socket.on('map_nearby_request', this.onMapNearbyRequest.bind(this));
     }
+
 
     onHello(data){
         this.socket.emit('www_hello_response', {
