@@ -598,7 +598,23 @@ class BrainMaker{
         return inputNode;
 
     }
-
+    closePositionDeltaRange(range?:number){
+        range = range || 2;
+        return new PositionDeltaRange({
+            xDelta:{
+                min: -1 * range,
+                max: 1 * range
+            },
+            yDelta:{
+                min: -1 * range,
+                max: 1 * range
+            },
+            zDelta:{
+                min: -1 * range,
+                max: 1 * range
+            },
+        })
+    }
     randOutput(options:any){
         let outputKeyIndex = Math.floor(Math.random() * this.OUTPUT_KEYS.length);
         let output = this.OUTPUT_KEYS[outputKeyIndex];
@@ -612,6 +628,7 @@ class BrainMaker{
             dependants:[],
 
         }
+
         switch(output) {
             case(Enum.OutputTypes.equip):
                 outputNode.destination = 'hand';
@@ -640,12 +657,14 @@ class BrainMaker{
             break;
             case(Enum.OutputTypes.attack):
                 outputNode.target = {
-                    entityType: ['mob']
+                    entityType: ['mob'],
+                    position:this.closePositionDeltaRange()
                 }
             break;
             case(Enum.OutputTypes.openChest):
                 outputNode.target = {
-                    block:[54]
+                    block:[54],
+                    position:this.closePositionDeltaRange()
                 }
             break;
             case(Enum.OutputTypes.openFurnace):
@@ -654,21 +673,24 @@ class BrainMaker{
                         61,// Furnace
                         62, //Burning Furnace
                         343 //Minecart with Furnace
-                    ]
+                    ],
+                    position:this.closePositionDeltaRange()
                 }
             break;
             case(Enum.OutputTypes.openDispenser):
                 outputNode.target = {
                     block:[
                         23
-                    ]
+                    ],
+                    position:this.closePositionDeltaRange()
                 }
             break;
             case(Enum.OutputTypes.openEnchantmentTable):
                 outputNode.target = {
                     block:[
                         116
-                    ]
+                    ],
+                    position:this.closePositionDeltaRange()
                 }
             break;
             case(Enum.OutputTypes.openEntity):
@@ -676,7 +698,8 @@ class BrainMaker{
             case(Enum.OutputTypes.useOn):
                 outputNode.target = {
                     type:'entity',
-                    entityTypes: []
+                    entityTypes: [],
+                    position:this.closePositionDeltaRange()
                 }
                 for(let i = 0; i < config.get('brain.maxTargets'); i++){
                     outputNode.target.entityTypes.push(this.randEntity().id);
@@ -684,25 +707,14 @@ class BrainMaker{
             break;
             case(Enum.OutputTypes.openVillager):
             case(Enum.OutputTypes.trade):
+                outputNode.target = {
+                    position:this.closePositionDeltaRange()
+                };
 
             break;
         }
-        outputNode.target = {};
 
-        outputNode.target.position = new PositionDeltaRange({
-            xDelta:{
-                min: -1,
-                max: 1
-            },
-            yDelta:{
-                min: -1,
-                max: 1
-            },
-            zDelta:{
-                min: -1,
-                max: 1
-            },
-        })
+
         return outputNode;
     }
     randBlock(){

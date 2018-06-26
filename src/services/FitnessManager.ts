@@ -136,14 +136,6 @@ class FitnessManager{
                     return;
                 }
                 bot.flagged = true;
-                return new Promise((resolve, reject)=>{
-                    bot.save((err)=>{
-                        if(err){
-                            return reject(err);
-                        }
-                        return resolve();
-                    })
-                })
 
             })
     }

@@ -307,7 +307,7 @@ class BotSocket{
             })
 
         })
-        .then(()=>{
+       /* .then(()=>{
             return new Promise((resolve, reject)=>{
                 this.bot.age += 1;
                 this.bot.save((err)=>{
@@ -317,10 +317,11 @@ class BotSocket{
                 })
                 return resolve();
             })
-        })
+        })*/
         .then(()=>{
 
             return  new Promise((resolve, reject)=> {
+                this.bot.age += 1;
                 let _payload = _.clone(payload);
                 delete(_payload.nodeInfo);
 
@@ -375,91 +376,7 @@ class BotSocket{
         .then(()=>{
             return this.fitnessManager.testFitness(this.bot, payload);
         })
-        /*.then(()=>{
-            return new Promise((resolve, reject)=>{
-
-                let multi = this.sm.app.redis.clients.chaoscraft.multi();
-                multi.hgetall('/bots/' + this.bot.username + '/stats')
-                return multi.exec((err, stats)=>{
-                    if(err){
-                        return reject(err);
-                    }
-                    return resolve(stats[0]);
-                })
-            })
-
-        })
-        .then((stats:any)=>{
-
-            let flagBot = false;
-
-            if(
-                this.bot.age > 7 &&
-                payload.distanceTraveled < 20
-            ) {
-                return this.onClientNotFiring(payload);
-            }
-
-            if(
-                this.bot.age > 14 &&
-                this.bot.generation > 2 &&
-                !stats.dig
-            ){
-                return this.onClientNotFiring(payload);
-            }
-
-            if(
-                this.bot.age > 19 &&
-                this.bot.generation > 4 &&
-                !stats.equip
-            ){
-                return this.onClientNotFiring(payload);
-            }
-
-            if(
-                this.bot.age > 25 &&
-                this.bot.generation > 8
-            ){
-                if(!stats.place_block){
-                    return this.onClientNotFiring(payload);
-                }else{
-                    flagBot = true;
-                }
-            }
-
-            if(
-                this.bot.age > 50 &&
-                this.bot.generation > 16 &&
-                !stats.attack
-            ){
-                return this.onClientNotFiring(payload);
-            }
-            if(
-                this.bot.age > 100 &&
-                this.bot.generation > 32 &&
-                !stats.craft
-            ){
-                return this.onClientNotFiring(payload);
-            }
-
-            if(
-                this.bot.age > 300
-            ){
-                //Its just time to die
-                return this.onClientNotFiring(payload);
-            }
-
-
-            if(this.bot.age % <number>config.get('brain.spawn_children_pong_ct') === 0){
-                return this.spawnChildren(payload);
-            }
-            if(!flagBot) {
-                return;
-            }
-            if(this.bot.flagged){
-                return;
-            }
-            this.bot.flagged = true;
+        .then(()=>{
             return new Promise((resolve, reject)=>{
                 this.bot.save((err)=>{
                     if(err){
@@ -469,7 +386,8 @@ class BotSocket{
                 })
             })
 
-        })*/
+        })
+
         .catch((err)=>{
             return this.emitError(err);
         })
@@ -485,21 +403,18 @@ class BotSocket{
                 }
                 brain[nodeId].activationCount =  brain[nodeId].activationCount || 0;
                 //brain[nodeId].activationCount += nodeInfo.activationCount;
-               /*
-               //THE fOLLOWING LINE OF CODE IS THE DEVIL
-               if(brain[nodeId].activationCount == 0){
-                    delete(brain[nodeId]);
-                }*/
+
             })
 
             this.bot.brain = JSON.stringify(brain);
-            return this.bot.save((err:Error, bot:iBot)=>{
+            return resolve();
+            /*return this.bot.save((err:Error, bot:iBot)=>{
                 if(err) {
                     return reject(err);
                 }
                 this.bot = bot;
                 return resolve(bot);
-            })
+            })*/
 
         })
     }
@@ -534,8 +449,10 @@ class BotSocket{
                 this.bot.spawnCount = this.bot.spawnCount || 0;
                 this.bot.spawnCount += 1;
                 let _shortid = shortid.generate();
+                let username = usernameBase +'-'+generation  + '-' + _shortid;
+                username = replaceall('--', '-',username)
                 let childBot = this.sm.app.mongo.models.chaoscraft.Bot({
-                    username: usernameBase +'-'+generation  + '-' + _shortid,
+                    username: username,
                     name:this.bot.name,
                     brain: JSON.stringify(brainData),
                     generation:generation,
