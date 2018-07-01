@@ -121,7 +121,7 @@ class FitnessManager{
                     });
                 }
                 if(
-                    bot.age > 100 &&
+                    bot.age > 75 &&
                     bot.generation > 32 &&
                     !stats.craft
                 ){
@@ -131,7 +131,7 @@ class FitnessManager{
                 }
 
                 if(
-                    bot.age > 300
+                    bot.age > 100
                 ){
                     //Its just time to die
                     return  this.botSocket.onClientNotFiring(payload, {
