@@ -271,7 +271,10 @@ class BotSocket{
                 return;
             default:
         }
-        return this.onClientNotFiring(payload);
+        return this.onClientNotFiring(payload, {
+            death_reason: payload.death_reason,
+            killed_by: payload.attacker
+        });
     }
     onNodeErrorThresholdHit(payload){
 
@@ -297,7 +300,7 @@ class BotSocket{
                 if(err) {
                     return reject(err);
                 }
-                if(!this.bot){
+                if(!bot){
                     this.onHello({});
                     return reject(new Error("No bot found with `payload.username` = " + payload.username))
                 }
@@ -488,8 +491,8 @@ class BotSocket{
 
 
     }
-    onClientNotFiring(payload){
-
+    onClientNotFiring(payload, options?:any){
+        options = options || {};
         switch(payload.username){
             case('adam-0'):
                 return;
@@ -548,7 +551,21 @@ class BotSocket{
                 })
             })
         })
+        .then(()=>{
+            return new Promise((resolve, reject)=>{
+                let multi = this.socket.app.redis.clients.chaoscraft.multi();
+                multi.hset('/bots/' + payload.username + '/stats', 'death_reason', options.death_reason);
+                multi.hincrby('/death_reasons/all', options.death_reason, 1);
+                multi.hincrby('/death_reasons/gen/' + this.bot.generation, options.death_reason, 1);
+                return multi.exec((err, stats)=>{
+                    if(err){
+                        return reject(err);
+                    }
+                    return resolve(stats[0]);
+                })
+            })
 
+        })
         .then(()=>{
             return this.onHello({});
         })

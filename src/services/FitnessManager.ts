@@ -73,7 +73,9 @@ class FitnessManager{
                     bot.age > 7 &&
                     payload.distanceTraveled < 20
                 ) {
-                    return this.botSocket.onClientNotFiring(payload);
+                    return this.botSocket.onClientNotFiring(payload, {
+                        death_reason:'failed_to_travel'
+                    });
                 }
 
                 if(
@@ -81,7 +83,9 @@ class FitnessManager{
                     bot.generation > 2 &&
                     !stats.dig
                 ){
-                    return this.botSocket.onClientNotFiring(payload);
+                    return this.botSocket.onClientNotFiring(payload, {
+                        death_reason:'failed_to_dig'
+                    });
                 }
 
                 if(
@@ -89,7 +93,9 @@ class FitnessManager{
                     bot.generation > 4 &&
                     !stats.equip
                 ){
-                    return this.botSocket.onClientNotFiring(payload);
+                    return this.botSocket.onClientNotFiring(payload, {
+                        death_reason:'failed_to_equip'
+                    });
                 }
 
                 if(
@@ -97,7 +103,9 @@ class FitnessManager{
                     bot.generation > 8
                 ){
                     if(!stats.place_block){
-                        return this.botSocket.onClientNotFiring(payload);
+                        return this.botSocket.onClientNotFiring(payload, {
+                            death_reason:'failed_to_place_block'
+                        });
                     }else{
                         flagBot = true;
                     }
@@ -108,21 +116,27 @@ class FitnessManager{
                     bot.generation > 16 &&
                     !stats.attack
                 ){
-                    return  this.botSocket.onClientNotFiring(payload);
+                    return  this.botSocket.onClientNotFiring(payload, {
+                        death_reason:'failed_to_attack'
+                    });
                 }
                 if(
                     bot.age > 100 &&
                     bot.generation > 32 &&
                     !stats.craft
                 ){
-                    return  this.botSocket.onClientNotFiring(payload);
+                    return  this.botSocket.onClientNotFiring(payload, {
+                        death_reason:'failed_to_craft'
+                    });
                 }
 
                 if(
                     bot.age > 300
                 ){
                     //Its just time to die
-                    return  this.botSocket.onClientNotFiring(payload);
+                    return  this.botSocket.onClientNotFiring(payload, {
+                        death_reason:'got_old'
+                    });
                 }
 
 

@@ -495,7 +495,34 @@ class Routes{
         })
 
 
+        app.express.get('/death_reasons', (req, res, next) => {
+            //Load a brain
 
+            let multi = app.redis.clients.chaoscraft.multi();
+            let MAX_GEN = 10;
+            for(let i = 0; i < MAX_GEN; i ++){
+                multi.hgetall('/death_reasons/gen/' + i);
+            }
+            multi.hgetall('/death_reasons/all');
+
+            multi.exec((err, results)=>{
+                let response:any = {
+                    gen:{}
+                };
+                for(let i = 0; i < MAX_GEN; i ++){
+                    response.gen[i] = results[i];
+                }
+                response.all = results[MAX_GEN];
+                try {
+                    return res.json(response);
+                }catch(e){
+                    return next(e);
+                }
+            });
+
+
+
+        });
 
         app.express.get('/bots/:bot/stats', (req, res, next) => {
             //Load a brain

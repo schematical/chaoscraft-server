@@ -630,6 +630,23 @@ class BrainMaker{
         }
 
         switch(output) {
+            case(Enum.OutputTypes.placeBlock):
+                outputNode.target = {
+                    position:this.closePositionDeltaRange()
+                }
+            break;
+            case(Enum.OutputTypes.dig):
+                outputNode.target = {
+                    type:'block',
+                    block: [],
+                    position:this.closePositionDeltaRange()
+                }
+                for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                    outputNode.target.block.push(this.randBlock().id);
+                }
+            break;
+            case(Enum.OutputTypes.toss):
+            case(Enum.OutputTypes.tossStack):
             case(Enum.OutputTypes.equip):
                 outputNode.destination = 'hand';
                 let rand = Math.round(Math.random());
