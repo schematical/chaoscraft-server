@@ -262,10 +262,24 @@ class BrainMaker{
         let inputNode:any = {
             id:'input_' +this.nodeLayers.inputs.length,
             base_type:'input',
-            type:Enum.InputTypes.isIn,
+            type:Enum.InputTypes.blockAt,
             target:{
                 type:'block',
-                block:[8,9]
+                block:[8,9],
+                position:{
+                    xDelta:{
+                        min:-1,
+                        max: 1,
+                    },
+                    zDelta:{
+                        min:-1,
+                        max: 1,
+                    },
+                    yDelta:{
+                        min:-1,
+                        max: 0,
+                    }
+                }
             }
         }
         this.indexedNodes[inputNode.id] = inputNode;
@@ -344,7 +358,6 @@ class BrainMaker{
         }
         this.indexedNodes[outputNode.id] = outputNode;
         this.nodeLayers.outputs.push(outputNode)
-
 
 
 

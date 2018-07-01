@@ -553,7 +553,7 @@ class BotSocket{
         })
         .then(()=>{
             return new Promise((resolve, reject)=>{
-                let multi = this.socket.app.redis.clients.chaoscraft.multi();
+                let multi = this.sm.app.redis.clients.chaoscraft.multi();
                 multi.hset('/bots/' + payload.username + '/stats', 'death_reason', options.death_reason);
                 multi.hincrby('/death_reasons/all', options.death_reason, 1);
                 multi.hincrby('/death_reasons/gen/' + this.bot.generation, options.death_reason, 1);
