@@ -327,6 +327,13 @@ class BrainMaker{
                 id: inputNode.id
             }]
         }
+        switch(outputType){
+            case('dig'):
+                outputNode.target = {
+                    position: this.closePositionDeltaRange(1)
+                }
+            break;
+        }
         this.indexedNodes[outputNode.id] = outputNode;
         this.nodeLayers.outputs.push(outputNode)
 
@@ -336,14 +343,15 @@ class BrainMaker{
 
 
         //Equip some stuff
+        let target = {
+            type:'block',
+                block:[1,2,3,4,5,6,7, 12,13,14]
+        }
         inputNode = {
             id:'input_' +this.nodeLayers.inputs.length,
             base_type:'input',
             type:Enum.InputTypes.hasInInventory,
-            target:{
-                type:'block',
-                block:[1,2,3,4,5,6,7, 12,13,14]
-            }
+            target:target
         }
         this.indexedNodes[inputNode.id] = inputNode;
         this.nodeLayers.inputs.push(inputNode)
@@ -354,7 +362,8 @@ class BrainMaker{
             type:'equip',
             dependants:[{
                 id: inputNode.id
-            }]
+            }],
+            target:target
         }
         this.indexedNodes[outputNode.id] = outputNode;
         this.nodeLayers.outputs.push(outputNode)
