@@ -26,6 +26,14 @@ class BrainMaker{
         this.indexedNodes = options.brainData || {};
         this.minecraftData = MinecraftData(config.get('minecraft.version'));
         this.INPUT_KEYS = Object.keys(Enum.InputTypes);
+        this.INPUT_KEYS = _.reject(this.INPUT_KEYS, (key)=>{
+            switch(key){
+                case('debug'):
+                    return false;
+                default:
+                    return true;
+            }
+        });
         //this.OUTPUT_KEYS = Object.keys(Enum.OutputTypes);
         this.OUTPUT_KEYS = [
             'placeBlock',
@@ -621,7 +629,7 @@ class BrainMaker{
 
     }
     closePositionDeltaRange(range?:number){
-        range = range || 2;
+        range = range || 3;
         return new PositionDeltaRange({
             xDelta:{
                 min: -1 * range,

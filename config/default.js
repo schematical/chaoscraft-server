@@ -1,12 +1,12 @@
 module.exports = {
     port: 80,
     brain:{
-        length: 10,
+        length: 20,
         inputNodePool:60,
-        maxChainLength: 4,
-        maxDependants: 2,
+        maxChainLength: 6,
+        maxDependants: 4,
         minDependants: 2,
-        maxTargets: 10,
+        maxTargets: 20,
         passOnDecay: .05,//The amount of nodes to lose
         passOnAdd: .1,//The percentage of nodes to add on
         max_litter_size: 10,

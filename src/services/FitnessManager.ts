@@ -102,9 +102,9 @@ class FitnessManager{
                     bot.age > 25 &&
                     bot.generation > 8
                 ){
-                    if(!stats.place_block){
+                    if(!stats.place_block_attempt){
                         return this.botSocket.onClientNotFiring(payload, {
-                            death_reason:'failed_to_place_block'
+                            death_reason:'failed_to_place_block_attempt'
                         });
                     }else{
                         flagBot = true;
