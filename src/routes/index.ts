@@ -141,11 +141,19 @@ class Routes{
             //Load a brain
 
             let query:any ={ }
-            if(_.isUndefined(req.query.alive) || req.query.alive){
+            if(_.isUndefined(req.query.alive)){
                 query.alive =  true;
-            }else{
-                query.alive = false;
             }
+            if(!_.isUndefined(req.query.generation) ){
+                query.generation =  req.query.generation;
+            }
+            if(!_.isUndefined(req.query.flagged)){
+                query.flagged =  req.query.flagged;
+            }
+            if(!_.isUndefined(req.query.name) ){
+                query.name = new RegExp("[^A-Za-z]" + req.query.name + "(?=[^A-Za-z])", 'i');
+            }
+
 
             return app.mongo.models.chaoscraft.Bot.find(
                 query,
@@ -157,6 +165,7 @@ class Routes{
                 }
             )
         })
+
 
         app.express.get('/bots/active', (req, res, next) => {
             //Load a brain

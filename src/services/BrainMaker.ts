@@ -353,7 +353,7 @@ class BrainMaker{
         //Equip some stuff
         let target = {
             type:'block',
-                block:[1,2,3,4,5,6,7, 12,13,14]
+            block:[1,2,3,4,5,6,7, 12,13,14]
         }
         inputNode = {
             id:'input_' +this.nodeLayers.inputs.length,
@@ -683,12 +683,18 @@ class BrainMaker{
                 if(rand === 0){
                     outputNode.target = {
                         type:'block',
-                        item: this.randBlock()
+                        block: []
+                    }
+                    for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                        outputNode.target.block.push(this.randBlock().id);
                     }
                 }else{
                     outputNode.target = {
                         type:'item',
-                        item: this.randItem()
+                        item: []
+                    }
+                    for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                        outputNode.target.item.push(this.randBlock().id);
                     }
                 }
             break;
