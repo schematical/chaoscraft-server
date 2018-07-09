@@ -694,7 +694,7 @@ class BrainMaker{
                         item: []
                     }
                     for(let i = 0; i < config.get('brain.maxTargets'); i++){
-                        outputNode.target.item.push(this.randBlock().id);
+                        outputNode.target.item.push(this.randItem().id);
                     }
                 }
             break;
