@@ -1,14 +1,14 @@
 module.exports = {
     port: 80,
     brain:{
-        length: 20,
-        inputNodePool:60,
-        maxChainLength: 6,
-        maxDependants: 4,
+        length: 15,
+        inputNodePool:30,
+        maxChainLength: 4,
+        maxDependants: 2,
         minDependants: 2,
         maxTargets: 20,
-        passOnDecay: .05,//The amount of nodes to lose
-        passOnAdd: .1,//The percentage of nodes to add on
+        passOnDecay: .005,//The amount of nodes to lose
+        passOnAdd: .01,//The percentage of nodes to add on
         max_litter_size: 10,
         spawn_children_pong_ct: 20,//5x a day
         outputs_remove_mode:'random',

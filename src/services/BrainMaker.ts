@@ -213,7 +213,7 @@ class BrainMaker{
 
                     node.dependants.push({
                         id:nextNode.id,
-                        weight: null
+                        weight: Math.round(Math.random() * 10)/10
                     })
 
 
