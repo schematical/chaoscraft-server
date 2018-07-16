@@ -29,9 +29,9 @@ class BrainMaker{
         this.INPUT_KEYS = _.reject(this.INPUT_KEYS, (key)=>{
             switch(key){
                 case('debug'):
-                    return false;
-                default:
                     return true;
+                default:
+                    return false;
             }
         });
         //this.OUTPUT_KEYS = Object.keys(Enum.OutputTypes);
@@ -72,6 +72,11 @@ class BrainMaker{
                 id:'input_' + i + '_' + options.generation
             });
             inputNode.originGen = options.generation;
+            if(!inputNode.type){
+                console.error("Missing: ", inputNode);
+            }else{
+                console.log(inputNode.id, " TYPE: ", inputNode.type)
+            }
             this.indexedNodes[inputNode.id] = inputNode;
             this.nodeLayers.inputs.push(inputNode);
         }

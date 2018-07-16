@@ -62,8 +62,8 @@ class Routes{
                brainData = (JSON.parse(fs.readFileSync('./adam.json').toString()));
             }
             brainholder[req.params._bot.generation] = brainData
-            const TEST_LENGTH = 10;
-            for(var i = req.params._bot.generation + 1; i < TEST_LENGTH; i++){
+            const TEST_LENGTH = 1;
+            for(var i = req.params._bot.generation + 1; i < req.params._bot.generation + 1 + TEST_LENGTH; i++){
 
                 brainholder[i] = brainMaker.create({
                     brainData: brainholder[i - 1] || null,
@@ -72,7 +72,7 @@ class Routes{
 
             }
 
-            return res.json(brainholder[TEST_LENGTH - 1]);
+            return res.json(brainholder[req.params._bot.generation + TEST_LENGTH]);
         });
 
         app.express.post('/reset', (req, res, next) => {

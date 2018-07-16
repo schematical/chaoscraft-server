@@ -25,10 +25,21 @@ describe('BrainMaker', function() {
                         brainData: brainholder[i - 1] || null,
                         generation: i
                     });
-                    console.log(getCounts(brainholder[i]));
-                    /* it('should return -1 when the value is not present', function() {
-                     assert.equal([1,2,3].indexOf(4), -1);
-                     });*/
+                    //console.log(getCounts(brainholder[i]));
+                     it('inputs should have types', function() {
+                         Object.keys(brainholder[i]).forEach((nodeId)=> {
+                            let node = brainholder[i][nodeId];
+                            switch(node.base_type){
+                                case('input'):
+
+                                    if(!node.type){
+                                        console.error(Object.keys(node));
+                                        throw new Error("Node is missing `type` property");
+                                    }
+                            }
+
+                         })
+                     });
                 }
             })(i)
         );
