@@ -114,21 +114,22 @@ class FitnessManager{
                 if(
                     bot.age > 50 &&
                     bot.generation > 16 &&
-                    !stats.attack
-                ){
-                    return  this.botSocket.onClientNotFiring(payload, {
-                        death_reason:'failed_to_attack'
-                    });
-                }
-                if(
-                    bot.age > 75 &&
-                    bot.generation > 32 &&
                     !stats.craft
                 ){
                     return  this.botSocket.onClientNotFiring(payload, {
                         death_reason:'failed_to_craft'
                     });
                 }
+                if(
+                    bot.age > 75 &&
+                    bot.generation > 32 &&
+                    !stats.attack
+                ){
+                    return  this.botSocket.onClientNotFiring(payload, {
+                        death_reason:'failed_to_attack'
+                    });
+                }
+
 
                 if(
                     bot.age > 100

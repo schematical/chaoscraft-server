@@ -1,3 +1,68 @@
 {
+  "output1": {
+    "base_type": "output",
+    "type": "equip",
+    "dependants": [
+      {
+        "id": "input1"
+      }
+    ],
+    "target": {
+      "type":"block",
+      "block":[91]
+    },
+    "activationCount": 0,
+    "id": "output1"
+  },
+  "input1": {
+    "id": "input1",
+    "base_type": "input",
+    "type": "debug",
+    "score":1,
+    "target":{},
+    "weight": 0.6,
+    "originGen": 1
+  },
 
+
+
+
+  "output2": {
+    "base_type": "output",
+    "type": "placeBlock",
+    "dependants": [
+      {
+        "id": "input2"
+      }
+    ],
+    "target": {
+      "type":"block",
+      "block":[2, 3],
+      "position": {
+        "xDelta": {
+          "min": -3,
+          "max": 3
+        },
+        "yDelta": {
+          "min": -1,
+          "max": 2
+        },
+        "zDelta": {
+          "min": -3,
+          "max": 3
+        }
+      }
+    },
+    "activationCount": 0,
+    "id": "output2"
+  },
+  "input2": {
+    "id": "input2",
+    "base_type": "input",
+    "type": "debug",
+    "score":1,
+    "target":{},
+    "weight": 0.6,
+    "originGen": 1
+  }
 }
