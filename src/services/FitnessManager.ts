@@ -88,7 +88,7 @@ class FitnessManager{
                     });
                 }
 
-                if(
+               /* if(
                     bot.age > 19 &&
                     bot.generation > 4 &&
                     !stats.equip
@@ -96,7 +96,7 @@ class FitnessManager{
                     return this.botSocket.onClientNotFiring(payload, {
                         death_reason:'failed_to_equip'
                     });
-                }
+                }*/
 
                 if(
                     bot.age > 25 &&
