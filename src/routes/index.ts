@@ -84,20 +84,43 @@ class Routes{
                 })
             })
             .then((keys:any)=>{
-                return new Promise((resolve, reject)=> {
-                    let multi = app.redis.clients.chaoscraft.multi();
-                    keys.forEach((key)=>{
-                        key = key.substr((<string>config.get('redis.chaoscraft.prefix')).length)
-                        multi.del(key);
-                    })
-
-                    return multi.exec((err)=>{
-                        if(err) return reject(err);
-                        return resolve();
-                    })
+                console.log("RESET - before redis key count:", keys.length);
+                let promises = [];
+                let _keys = [];
+                keys.forEach((key, index)=>{
+                    _keys.push(key);
+                    if(index % 100 !== 0 && index != keys.length - 1){
+                        return;
+                    }
+                    ((_keys, index)=>{
+                        console.log("RESET Exicuting: ", index, ' on keys:', _keys.length);
+                        promises.push(new Promise((resolve, reject)=> {
+                            let multi = app.redis.clients.chaoscraft.multi();
+                            _keys.forEach((key)=>{
+                                key = key.substr((<string>config.get('redis.chaoscraft.prefix')).length)
+                                multi.del(key);
+                            });
+                            return multi.exec((err)=>{
+                                console.log("RESET Finished Exicuting: ", index, ' on keys:', _keys.length, err);
+                                if(err) return reject(err);
+                                return resolve();
+                            })
+                        }));
+                    })(_keys, index);
+                    _keys = []
                 })
+                let p = null;
+                promises.forEach((_p)=>{
+                    if(p) {
+                        p.then(_p);
+                    }
+                    p = _p;
+                })
+                return promises[0];
+
             })
             .then(()=>{
+                console.log("Finished Redis Reset!");
                 return new Promise((resolve, reject)=> {
                     let query = {
                         flagged: {$ne: true}
@@ -552,6 +575,12 @@ class Routes{
 
 
         });
+        app.express.get('/achievement_types', (req, res, next)=>{
+            app.redis.clients.chaoscraft.smembers('/achievement_types', (err, response)=>{
+                if(err) return next(err);
+                return res.json(response);
+            })
+        })
         app.express.get('/stats', (req, res, next) => {
             //Load a brain
 
@@ -565,9 +594,7 @@ class Routes{
                 'inventory',
                 'inventory_ct',
                 'health',
-                'health_age',
                 'food',
-                'food_age',
                 'attack',
                 'craft',
                 'craft_attempt',
@@ -582,6 +609,7 @@ class Routes{
             })
 
             multi.exec((err, results)=>{
+                if(err) return next(err);
                 let response = {}
                 stat_keys.forEach((key, index)=>{
                     response[key] = results[index] || {};
@@ -590,6 +618,16 @@ class Routes{
             });
 
 
+
+        });
+
+        app.express.get('/stats/:stat', (req, res, next) => {
+            //Load a brain
+
+            app.redis.clients.chaoscraft.hgetall('/stats/' + req.param('stat'), (err, results)=>{
+                if(err) return next(err);
+                return res.json(results);
+            });
 
         });
 

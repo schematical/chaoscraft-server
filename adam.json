@@ -60,6 +60,149 @@
     "id": "input2",
     "base_type": "input",
     "type": "debug",
+    "score":0,
+    "target":{},
+    "weight": 0.6,
+    "originGen": 1
+  },
+
+
+
+  "output3": {
+    "base_type": "output",
+    "type": "toss",
+    "dependants": [
+      {
+        "id": "input3"
+      }
+    ],
+    "target": {
+      "type":"block",
+      "block":[58,1,4]
+    },
+    "activationCount": 0,
+    "id": "output3"
+  },
+  "input3": {
+    "id": "input3",
+    "base_type": "input",
+    "type": "debug",
+    "score":0,
+    "target":{},
+    "weight": 0.6,
+    "originGen": 1
+  },
+
+  "output4": {
+    "base_type": "output",
+    "type": "dig",
+    "dependants": [
+      {
+        "id": "input4"
+      }
+    ],
+    "target": {
+      "type":"block",
+      "block":[1,4],
+      "position": {
+        "xDelta": {
+          "min": -3,
+          "max": 3
+        },
+        "yDelta": {
+          "min": -1,
+          "max": 2
+        },
+        "zDelta": {
+          "min": -3,
+          "max": 3
+        }
+      }
+    },
+    "activationCount": 0,
+    "id": "output4"
+  },
+  "input4": {
+    "id": "input4",
+    "base_type": "input",
+    "type": "isHolding",
+    "score":1,
+    "target":{
+      "type":"item",
+      "item":[257, 270,274,278,285]
+    },
+    "weight": 0.6,
+    "originGen": 1
+  },
+
+
+
+
+
+
+
+
+
+  "output5": {
+    "base_type": "output",
+    "type": "craft",
+    "dependants": [
+      {
+        "id": "input5"
+      }
+    ],
+    "target": {
+      "type":"recipe",
+      "recipe":[91]
+    },
+    "activationCount": 0,
+    "id": "output5"
+  },
+  "input5": {
+    "id": "input5",
+    "base_type": "input",
+    "type": "debug",
+    "score":1,
+    "target":{},
+    "weight": 0.6,
+    "originGen": 1
+  },
+
+
+
+  "output6": {
+    "base_type": "output",
+    "type": "attack",
+    "dependants": [
+      {
+        "id": "input6"
+      }
+    ],
+    "target": {
+      "type":"entity",
+      "entityType":["mob"],
+      "position": {
+        "xDelta": {
+          "min": -3,
+          "max": 3
+        },
+        "yDelta": {
+          "min": -1,
+          "max": 2
+        },
+        "zDelta": {
+          "min": -3,
+          "max": 3
+        }
+      }
+    },
+    "activationCount": 0,
+    "id": "output6"
+  },
+  "input6": {
+    "id": "input6",
+    "base_type": "input",
+    "type": "debug",
     "score":1,
     "target":{},
     "weight": 0.6,

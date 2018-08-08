@@ -136,10 +136,12 @@ class BotSocket{
         this.socket.on('client_death', (payload)=>{
             this.onDeath(payload);
         })
+        this.socket.on('achievement', (payload)=>{
+            this.onAchivement(payload);
+        })
         this.socket.on('achivment', (payload)=>{
             this.onAchivement(payload);
         })
-
         this.socket.on('map_nearby_response', (payload)=>{
             this.onMapNearbyResponse(payload);
         })
@@ -227,6 +229,7 @@ class BotSocket{
         let multi = this.sm.app.redis.clients.chaoscraft.multi();
         multi.hincrby('/bots/' + payload.username + '/stats', payload.type, payload.value || 1);
         multi.hincrby('/stats/' + payload.type, payload.username, payload.value || 1);
+        multi.sadd('/achievement_types', payload.type);
         switch(payload.type){
             case('dig'):
             case('place_block'):
@@ -341,9 +344,7 @@ class BotSocket{
 
                     multi.hmset('/stats/age',  this.bot.username, this.bot.age);
                     multi.hmset('/stats/health',  this.bot.username, payload.health);
-                    multi.hmset('/stats/health_age',  this.bot.username, payload.health * this.bot.age);
                     multi.hmset('/stats/food',  this.bot.username, payload.food);
-                    multi.hmset('/stats/food_age',  this.bot.username, payload.food  * this.bot.age);
                     delete(_payload.position);
                 }
                 if(_payload.inventory) {

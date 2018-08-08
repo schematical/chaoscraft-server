@@ -34,12 +34,12 @@ class BrainMaker{
                     return false;
             }
         });
-        //this.OUTPUT_KEYS = Object.keys(Enum.OutputTypes);
+        this.OUTPUT_KEYS = Object.keys(Enum.OutputTypes);
         this.OUTPUT_KEYS = [
             'placeBlock',
             'equip',
             'tossStack',
-
+            'craft',
             'stopWalking',
             //'lookAt',
             'dig',
@@ -75,7 +75,7 @@ class BrainMaker{
             if(!inputNode.type){
                 console.error("Missing: ", inputNode);
             }else{
-                console.log(inputNode.id, " TYPE: ", inputNode.type)
+                //console.log(inputNode.id, " TYPE: ", inputNode.type)
             }
             this.indexedNodes[inputNode.id] = inputNode;
             this.nodeLayers.inputs.push(inputNode);
@@ -235,7 +235,7 @@ class BrainMaker{
 
         //Setup some basic instincts
         if(!options.generation) {
-            this.setupBasicInstincts();
+            //this.setupBasicInstincts();
         }
         this.sanityCheck();
 
