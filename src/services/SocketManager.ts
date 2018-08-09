@@ -239,6 +239,12 @@ class BotSocket{
                 }
                 let key = '/world/blocks/' + payload.target.position.x + '/' + payload.target.position.y + '/' + payload.target.position.z;
                 multi.hset(key, 'modified_by', payload.username);
+            break;
+            case('kill'):
+            case('attack_success'):
+                multi.sadd('/bots/' + payload.username + '/stats/' + payload.type  + '/targets', payload.victim);
+            break;
+
         }
         multi.exec((err)=>{
             if(err){
@@ -337,11 +343,11 @@ class BotSocket{
                     multi.hmset('/bots/' + this.bot.username + '/position', 'y', _payload.position.y);
                     multi.hmset('/bots/' + this.bot.username + '/position', 'z', _payload.position.z);
                     multi.hmset('/bots/' + this.bot.username + '/stats', 'distance_traveled', payload.distanceTraveled);
-
+                    multi.sadd('/achievement_types', 'distance_traveled')
                     multi.hmset('/bots/' + this.bot.username + '/stats', 'health', _payload.health);
                     multi.hmset('/bots/' + this.bot.username + '/stats', 'food', _payload.health);
                     multi.hmset('/stats/distance_traveled',  this.bot.username, payload.distanceTraveled);
-
+                    multi.sadd('/achievement_types', 'age')
                     multi.hmset('/stats/age',  this.bot.username, this.bot.age);
                     multi.hmset('/stats/health',  this.bot.username, payload.health);
                     multi.hmset('/stats/food',  this.bot.username, payload.food);
@@ -399,18 +405,22 @@ class BotSocket{
     }
     updateBrainWithNodeData(payload){
         return new Promise((resolve, reject)=>{
+            if(this.bot.username == 'adam-0') {
+                return resolve();
+            }
             let brain = JSON.parse(this.bot.brain);
-            Object.keys(payload.nodeInfo).forEach((nodeId)=>{
+            Object.keys(payload.nodeInfo).forEach((nodeId) => {
                 let nodeInfo = payload.nodeInfo[nodeId];
-                if(!brain[nodeId]){
+                if (!brain[nodeId]) {
                     return console.error(this.bot.username + ' - has no brain nodeId: ' + nodeId)
                 }
-                brain[nodeId].activationCount =  brain[nodeId].activationCount || 0;
+                brain[nodeId].activationCount = brain[nodeId].activationCount || 0;
                 //brain[nodeId].activationCount += nodeInfo.activationCount;
 
             })
 
             this.bot.brain = JSON.stringify(brain);
+
             return resolve();
             /*return this.bot.save((err:Error, bot:iBot)=>{
                 if(err) {

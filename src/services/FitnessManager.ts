@@ -49,9 +49,37 @@ class FitnessManager{
             }
         }
     }
-    testFitness(bot, payload:any){
+    testFitness(bot, payload:any) {
+        return new Promise((resolve, reject)=>{
 
+            let multi = this.app.redis.clients.chaoscraft.multi();
+            multi.hgetall('/bots/' + payload.username + '/stats')
+            return multi.exec((err, stats)=>{
+                if(err){
+                    return reject(err);
+                }
+                return resolve(stats[0]);
+            })
+        })
+        .then((stats:any)=> {
+            if(
+                bot.age > 2 &&
+                payload.distanceTraveled < 20
+            ) {
+                return this.botSocket.onClientNotFiring(payload, {
+                    death_reason:'failed_to_travel'
+                });
+            }
 
+            if(
+                stats.kill / (bot.age * 10) > 1
+            ){
+                return this.botSocket.spawnChildren(payload);
+            }
+        });
+
+    }
+    testFitnessOld(bot, payload:any) {
             return new Promise((resolve, reject)=>{
 
                 let multi = this.app.redis.clients.chaoscraft.multi();

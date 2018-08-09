@@ -139,7 +139,7 @@ class BrainMaker{
         this.nodeLayers.outputs = _.sortBy(this.nodeLayers.outputs, (node)=>{
             return (0 - node.activationCount);/*outputFiredCount;*/
         });
-
+console.log("Removing " + decayNodesLength + " Outputs to generation " + options.generation);
         for(let i = 0; i < decayNodesLength; i++){
             let index:number = null;
             switch(config.get('brain.outputs_remove_mode')){
@@ -157,7 +157,7 @@ class BrainMaker{
 
         }
         let neededOutputs = newMaxOutputLength - this.nodeLayers.outputs.length;
-
+console.log("Adding " + neededOutputs + " Outputs to generation " + options.generation);
         for(let i = 0; i < neededOutputs; i++){
             //Start with an input
 
