@@ -246,13 +246,20 @@ class BotSocket{
             break;
 
         }
-        multi.exec((err)=>{
-            if(err){
-                return this.emitError(err);
-            }
-            //Success
+        this.fitnessManager.testAchievement(this.bot, payload, multi)
+            .then(()=>{
+                multi.exec((err)=>{
+                    if(err){
+                        return this.emitError(err);
+                    }
+                    //Success
 
-        });
+                });
+            })
+            .catch((err)=>{
+                return this.emitError(err);
+            })
+
 
     }
     markActive(payload){
@@ -342,12 +349,17 @@ class BotSocket{
                     multi.hmset('/bots/' + this.bot.username + '/position', 'x', _payload.position.x);
                     multi.hmset('/bots/' + this.bot.username + '/position', 'y', _payload.position.y);
                     multi.hmset('/bots/' + this.bot.username + '/position', 'z', _payload.position.z);
+
+
                     multi.hmset('/bots/' + this.bot.username + '/stats', 'distance_traveled', payload.distanceTraveled);
+                    multi.hmset('/stats/distance_traveled',  this.bot.username, payload.distanceTraveled);
                     multi.sadd('/achievement_types', 'distance_traveled')
+
+                    multi.sadd('/achievement_types', 'age')
+
+
                     multi.hmset('/bots/' + this.bot.username + '/stats', 'health', _payload.health);
                     multi.hmset('/bots/' + this.bot.username + '/stats', 'food', _payload.health);
-                    multi.hmset('/stats/distance_traveled',  this.bot.username, payload.distanceTraveled);
-                    multi.sadd('/achievement_types', 'age')
                     multi.hmset('/stats/age',  this.bot.username, this.bot.age);
                     multi.hmset('/stats/health',  this.bot.username, payload.health);
                     multi.hmset('/stats/food',  this.bot.username, payload.food);
@@ -432,15 +444,15 @@ class BotSocket{
 
         })
     }
-    spawnChildren(payload){
+    spawnChildren(payload, options?:any){
         let generation = this.bot.generation + 1;
         if(this.bot.username == 'adam-0'){
             this.bot.brain = fs.readFileSync(__dirname + '/../../adam.json').toString();
         }
-        let options = {
-            brainData: JSON.parse(this.bot.brain),
-            generation: generation
-        }
+        options = options || { };
+        options.brainData = JSON.parse(this.bot.brain);
+        options.generation = generation;
+        options.litterSizeMultiplier = options.litterSizeMultiplier || 1;
 
 
 
@@ -452,7 +464,8 @@ class BotSocket{
         }
 
         let promises = [];
-        let litterSize = Math.floor(<number>config.get('brain.max_litter_size') * Math.random());
+        let litterSize = Math.floor(<number>config.get('brain.max_litter_size') * options.litterSizeMultiplier * Math.random());
+
         for(let i = 0; i < litterSize; i++){
 
             promises.push(new Promise((resolve, reject)=>{
@@ -666,7 +679,7 @@ class BotSocket{
 
 
             })
-        }else if(Math.round(Math.random()) == 1){
+        }else if(Math.random() > .2){
             p = this.getInActiveUser();
         }else{
             p = new Promise((resolve, retject)=>{

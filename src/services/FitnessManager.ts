@@ -70,14 +70,37 @@ class FitnessManager{
                     death_reason:'failed_to_travel'
                 });
             }
-
-            if(
-                stats.kill / (bot.age * 10) > 1
+           /* if(
+                stats.attack_success / (bot.age * 10) > 1
             ){
                 return this.botSocket.spawnChildren(payload);
             }
+            if(
+                stats.kill / (bot.age * 10) > 1
+            ){
+                return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });
+            }*/
         });
 
+    }
+    testAchievement(bot:any, payload:any, multi:any){
+        switch(payload.type){
+
+            case('place_block'):
+
+            break;
+
+            case('attack_success'):
+                return this.botSocket.spawnChildren(payload);
+            //break;
+            case('kill'):
+                return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });
+            //break;
+
+        }
+        return new Promise((resolve, reject)=>{
+            return resolve();
+        })
     }
     testFitnessOld(bot, payload:any) {
             return new Promise((resolve, reject)=>{
