@@ -693,10 +693,10 @@ class BotSocket{
                     return bot;
                 }
                 //TODO: Put this back in or we will never evolve bots
-                if(Math.round(Math.random()) == 1){
+                //if(Math.round(Math.random()) == 1){
                     return bot;
-                }
-                bot = null;
+                //}
+                //bot = null;
             }
 
 

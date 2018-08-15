@@ -531,7 +531,7 @@ class Routes{
             //Load a brain
 
             let multi = app.redis.clients.chaoscraft.multi();
-            let MAX_GEN = 10;
+            let MAX_GEN = 50;
             for(let i = 0; i < MAX_GEN; i ++){
                 multi.hgetall('/death_reasons/gen/' + i);
             }

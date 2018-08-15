@@ -7,8 +7,8 @@ module.exports = {
         maxDependants: 2,
         minDependants: 2,
         maxTargets: 20,
-        passOnDecay: .005,//The amount of nodes to lose
-        passOnAdd: .01,//The percentage of nodes to add on
+        passOnDecay: .01,//The amount of nodes to lose
+        passOnAdd: .02,//The percentage of nodes to add on
         max_litter_size: 10,
         spawn_children_pong_ct: 20,//5x a day
         outputs_remove_mode:'random',

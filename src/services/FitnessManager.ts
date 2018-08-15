@@ -87,13 +87,15 @@ class FitnessManager{
         switch(payload.type){
 
             case('place_block'):
-
-            break;
+                return this.botSocket.spawnChildren(payload);
+            //break;
 
             case('attack_success'):
                 return this.botSocket.spawnChildren(payload);
             //break;
             case('kill'):
+                return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });
+            case('craft'):
                 return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });
             //break;
 

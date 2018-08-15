@@ -207,5 +207,32 @@
     "target":{},
     "weight": 0.6,
     "originGen": 1
+  },
+
+
+  "output7": {
+    "base_type": "output",
+    "type": "equip",
+    "dependants": [
+      {
+        "id": "input7"
+      }
+    ],
+    "target": {
+      "type":"item",
+      "item":[298,302,306,310,314]
+    },
+    "destination":"head",
+    "activationCount": 0,
+    "id": "output7"
+  },
+  "input7": {
+    "id": "input7",
+    "base_type": "input",
+    "type": "debug",
+    "score":1,
+    "target":{},
+    "weight": 0.6,
+    "originGen": 1
   }
 }

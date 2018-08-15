@@ -89,8 +89,8 @@ class BrainMaker{
         let  passOnAdd = <number>config.get('brain.passOnAdd');
         let  passOnDecay = <number>config.get('brain.passOnDecay');
         if(options.generation){
-            newMaxOutputLength =  Math.round(options.length * Math.pow((1 + passOnAdd), options.generation));
-            decayNodesLength = Math.round(newMaxOutputLength * passOnDecay);
+            newMaxOutputLength =  Math.ceil(options.length * Math.pow((1 + passOnAdd), options.generation));
+            decayNodesLength = Math.floor(newMaxOutputLength * passOnDecay);
 
 
         }
