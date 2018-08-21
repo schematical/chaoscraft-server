@@ -500,7 +500,13 @@ class Routes{
             if(req.params._bot.username == 'adam-0'){
                 return res.json(JSON.parse(fs.readFileSync('./adam.json').toString()));
             }
-            return res.json(JSON.parse(req.params._bot.brain));
+            let body = null;
+            try{
+                body = JSON.parse(req.params._bot.brain);
+            }catch(e){
+                return next(e);
+            }
+            return res.json(body);
 
         })
         app.express.get('/bots/:bot/inventory', (req, res, next) => {
@@ -581,6 +587,13 @@ class Routes{
                 return res.json(response);
             })
         })
+        app.express.get('/achievement_types/:achievement_type', (req, res, next)=>{
+            let achivementTypeUri = '/achievement_types/' + req.param('achievement_type');
+            app.redis.clients.chaoscraft.smembers(achivementTypeUri, (err, response)=>{
+                if(err) return next(err);
+                return res.json(response);
+            })
+        })
         app.express.get('/stats', (req, res, next) => {
             //Load a brain
 
@@ -621,8 +634,14 @@ class Routes{
 
         });
 
+        app.express.get('/stats/:stat/:subtype', (req, res, next) => {
+            app.redis.clients.chaoscraft.hgetall('/stats/' + req.param('stat') + '/' + req.param('subtype'), (err, results)=>{
+                if(err) return next(err);
+                return res.json(results);
+            });
+
+        });
         app.express.get('/stats/:stat', (req, res, next) => {
-            //Load a brain
 
             app.redis.clients.chaoscraft.hgetall('/stats/' + req.param('stat'), (err, results)=>{
                 if(err) return next(err);
@@ -630,6 +649,7 @@ class Routes{
             });
 
         });
+
 
 
         let minecraftData = MinecraftData(config.get('minecraft.version'))

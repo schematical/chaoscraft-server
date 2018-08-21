@@ -40,6 +40,10 @@ class BrainMaker{
             'equip',
             'tossStack',
             'craft',
+            'craft',
+            'craft',
+            'craft',
+            'craft',
             'stopWalking',
             //'lookAt',
             'dig',
@@ -542,7 +546,7 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
             case(Enum.InputTypes.entitySpawn):
             case(Enum.InputTypes.entityUpdate):
             //case(Enum.InputTypes.canSeeEntity):
-            case(Enum.InputTypes.playerCollect):
+
                 switch(Math.floor(Math.random() * 3)){
                     case(0):
                         inputNode.target = {
@@ -578,7 +582,7 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
                 inputNode.position = PositionDeltaRange.genRandom({}).toObject();
 
             break;
-
+            case(Enum.InputTypes.playerCollect):
             case(Enum.InputTypes.hasInInventory):
             case(Enum.InputTypes.hasEquipped):
 

@@ -227,38 +227,82 @@ class BotSocket{
     }
     onAchivement(payload:any){
         let multi = this.sm.app.redis.clients.chaoscraft.multi();
-        multi.hincrby('/bots/' + payload.username + '/stats', payload.type, payload.value || 1);
-        multi.hincrby('/stats/' + payload.type, payload.username, payload.value || 1);
-        multi.sadd('/achievement_types', payload.type);
-        switch(payload.type){
-            case('dig'):
-            case('place_block'):
-                //Update block, add username
-                if(!payload.target){
-                    return console.error("TODO: Fix this, we moved the target a bit");
+        return new Promise((resolve, reject)=>{
+
+            return this.sm.app.mongo.models.chaoscraft.Bot.findOne({
+                username: payload.username
+            }, (err:Error, bot:iBot)=>{
+                if(err) {
+                    return reject(err);
                 }
-                let key = '/world/blocks/' + payload.target.position.x + '/' + payload.target.position.y + '/' + payload.target.position.z;
-                multi.hset(key, 'modified_by', payload.username);
-            break;
-            case('kill'):
-            case('attack_success'):
-                multi.sadd('/bots/' + payload.username + '/stats/' + payload.type  + '/targets', payload.victim);
-            break;
+                if(!bot){
+                    this.onHello({});
+                    return reject(new Error("No bot found with `payload.username` = " + payload.username))
+                }
+                this.bot = bot;
 
-        }
-        this.fitnessManager.testAchievement(this.bot, payload, multi)
-            .then(()=>{
-                multi.exec((err)=>{
-                    if(err){
-                        return this.emitError(err);
+                return resolve();
+            })
+
+        })
+        .then(()=>{
+
+            multi.hincrby('/bots/' + payload.username + '/stats', payload.type, payload.value || 1);
+            multi.hincrby('/stats/' + payload.type, payload.username, payload.value || 1);
+            multi.sadd('/achievement_types', payload.type);
+
+            switch(payload.type){
+                case('player_collect'):
+                    var longStatName = payload.type + '/' + payload.blockId;
+                    multi.hincrby('/stats/' + longStatName, payload.username, payload.value || 1);
+                    multi.sadd('/achievement_types/' + payload.type, payload.blockId);
+                    break;
+                case('dig'):
+                case('place_block'):
+                case('place_block_attempt'):
+                    //Update block, add username
+                    if(!payload.target){
+                        console.error("TODO: Fix this, we moved the target a bit");
+                        return
                     }
-                    //Success
+                    let key = '/world/blocks/' + payload.target.position.x + '/' + payload.target.position.y + '/' + payload.target.position.z;
+                    multi.hset(key, 'modified_by', payload.username);
+                    var longStatName = payload.type + '/' + payload.target.displayName;
+                    multi.hincrby('/stats/' + longStatName, payload.username, payload.value || 1);
+                    multi.sadd('/achievement_types/' + payload.type, payload.target.displayName);
+                    break;
+                case('kill'):
+                case('attack_success'):
+                    var longStatName = payload.type + '/' + payload.victim;
 
-                });
-            })
-            .catch((err)=>{
-                return this.emitError(err);
-            })
+                    multi.hincrby('/stats/' + longStatName, payload.username, payload.value || 1);
+                    multi.sadd('/achievement_types/' + payload.type, payload.victim);
+                    multi.sadd('/bots/' + payload.username + '/stats/' + payload.type  + '/targets', payload.victim);
+                    break;
+                case('craft'):
+                case('craft_attempt'):
+                    var longStatName = payload.type + '.' + payload.recipe;
+                    multi.hincrby('/stats/' + longStatName, payload.username, payload.value || 1);
+                    multi.sadd('/achievement_types/' + payload.type, payload.recipe);
+                    break;
+
+            }
+            return this.fitnessManager.testAchievement(this.bot, payload, multi)
+
+
+        })
+        .then(()=>{
+            multi.exec((err)=>{
+                if(err){
+                    return this.emitError(err);
+                }
+                //Success
+
+            });
+        })
+        .catch((err)=>{
+            return this.emitError(err);
+        })
 
 
     }
