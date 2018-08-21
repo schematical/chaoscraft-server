@@ -70,16 +70,15 @@ class FitnessManager{
                     death_reason:'failed_to_travel'
                 });
             }
-           /* if(
-                stats.attack_success / (bot.age * 10) > 1
-            ){
-                return this.botSocket.spawnChildren(payload);
-            }
             if(
-                stats.kill / (bot.age * 10) > 1
+                bot.age > 20
             ){
-                return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });
-            }*/
+                //Its just time to die
+                return  this.botSocket.onClientNotFiring(payload, {
+                    death_reason:'got_old'
+                });
+            }
+
         });
 
     }
