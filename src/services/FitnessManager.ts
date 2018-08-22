@@ -85,17 +85,54 @@ class FitnessManager{
     testAchievement(bot:any, payload:any, multi:any){
         switch(payload.type){
 
-            case('place_block'):
-                return this.botSocket.spawnChildren(payload);
-            //break;
 
-            case('attack_success'):
+
+
+           /* case('attack_success'):
                 return this.botSocket.spawnChildren(payload);
             //break;
             case('kill'):
-                return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });
+                return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });*/
+            case('player_collect'):
+            case('dig'):
+                switch(payload.target.type){
+                    case(17):
+                    case('17:1'):
+                    case('17:2'):
+                    case('17:3'):
+                        return this.botSocket.spawnChildren(payload, { });
+
+                    case(268)://Wooden Sword
+                    case(269)://Wooden Shovel
+                    case(270)://Wooden Pickaxe
+                    case(271)://Wooden Axe
+                    case(290)://Wooden Hoe
+                        return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });
+
+                }
+            break;
+            case('place_block'):
             case('craft'):
-                return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });
+                switch(payload.recipe){
+                    case(5):
+                    case('5:1'):
+                    case('5:2'):
+                    case('5:3'):
+                    case('5:4'):
+                    case('5:5'):
+                        return this.botSocket.spawnChildren(payload, { });
+                    case(58):
+                    case(50):
+                    case(268)://Wooden Sword
+                    case(269)://Wooden Shovel
+                    case(270)://Wooden Pickaxe
+                    case(271)://Wooden Axe
+                    case(290)://Wooden Hoe
+                        return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });
+                    //break;
+
+                }
+            break;
             //break;
 
         }

@@ -35,7 +35,10 @@ class BrainMaker{
             }
         });
         this.OUTPUT_KEYS = Object.keys(Enum.OutputTypes);
-        this.OUTPUT_KEYS = [
+        this.OUTPUT_KEYS.push('craft');
+        this.OUTPUT_KEYS.push('craft');
+        this.OUTPUT_KEYS.push('craft');
+        /*this.OUTPUT_KEYS = [
             'placeBlock',
             'equip',
             'tossStack',
@@ -64,7 +67,7 @@ class BrainMaker{
             'lookRight',
             'lookUp',
             'lookDown'
-        ]
+        ]*/
         let brain:Brain = null;
         this.nodeLayers.inputs = [];
         this.nodeLayers.outputs = [];
@@ -674,6 +677,7 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
                     position:this.closePositionDeltaRange()
                 }
             break;
+            case(Enum.OutputTypes.activateBlock):
             case(Enum.OutputTypes.dig):
                 outputNode.target = {
                     type:'block',
@@ -725,6 +729,7 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
             break;
             case(Enum.OutputTypes.openChest):
                 outputNode.target = {
+                    type:'block',
                     block:[54],
                     position:this.closePositionDeltaRange()
                 }

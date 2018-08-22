@@ -9,7 +9,7 @@
     ],
     "target": {
       "type":"block",
-      "block":[91]
+      "block":[58, 50]
     },
     "activationCount": 0,
     "id": "output1"
@@ -37,14 +37,14 @@
     ],
     "target": {
       "type":"block",
-      "block":[2, 3],
+      "block":[1],
       "position": {
         "xDelta": {
           "min": -3,
           "max": 3
         },
         "yDelta": {
-          "min": -1,
+          "min": -2,
           "max": 2
         },
         "zDelta": {
@@ -60,7 +60,7 @@
     "id": "input2",
     "base_type": "input",
     "type": "debug",
-    "score":0,
+    "score":1,
     "target":{},
     "weight": 0.6,
     "originGen": 1
@@ -153,7 +153,7 @@
     ],
     "target": {
       "type":"recipe",
-      "recipe":[91]
+      "recipe":[58, 50]
     },
     "activationCount": 0,
     "id": "output5"
@@ -227,6 +227,51 @@
     "id": "output7"
   },
   "input7": {
+    "id": "input7",
+    "base_type": "input",
+    "type": "debug",
+    "score":1,
+    "target":{},
+    "weight": 0.6,
+    "originGen": 1
+  },
+
+
+
+
+
+
+
+  "output8": {
+    "base_type": "output",
+    "type": "openChest",
+    "dependants": [
+      {
+        "id": "input8"
+      }
+    ],
+    "target": {
+      "type":"block",
+      "block":[54],
+      "position": {
+        "xDelta": {
+          "min": -3,
+          "max": 3
+        },
+        "yDelta": {
+          "min": -1,
+          "max": 2
+        },
+        "zDelta": {
+          "min": -3,
+          "max": 3
+        }
+      }
+    },
+    "activationCount": 0,
+    "id": "output8"
+  },
+  "input8": {
     "id": "input7",
     "base_type": "input",
     "type": "debug",
