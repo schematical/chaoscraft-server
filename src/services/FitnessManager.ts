@@ -133,6 +133,8 @@ class FitnessManager{
 
                 }
             break;
+            default:
+                return this.botSocket.spawnChildren(payload, { /*litterSizeMultiplier: 10*/ });
             //break;
 
         }
