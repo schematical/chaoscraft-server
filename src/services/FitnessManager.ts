@@ -94,7 +94,7 @@ class FitnessManager{
             case('kill'):
                 return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });*/
             case('player_collect'):
-            case('dig'):
+            //case('dig'):
                 switch(payload.target.type){
                     case(17):
                     case('17:1'):
@@ -111,7 +111,7 @@ class FitnessManager{
 
                 }
             break;
-            case('place_block'):
+            //case('place_block'):
             case('craft'):
                 switch(payload.recipe){
                     case(5):

@@ -102,8 +102,8 @@ class BrainMaker{
         let  passOnAdd = <number>config.get('brain.passOnAdd');
         let  passOnDecay = <number>config.get('brain.passOnDecay');
         if(options.generation){
-            newMaxOutputLength =  Math.ceil(options.length * Math.pow((1 + passOnAdd), options.generation));
-            decayNodesLength = Math.floor(newMaxOutputLength * passOnDecay);
+            newMaxOutputLength = options.length + options.generation;  //Math.ceil(options.length * Math.pow((1 + passOnAdd), options.generation));
+            decayNodesLength = 0;//Math.floor(newMaxOutputLength * passOnDecay);
 
 
         }
@@ -729,6 +729,7 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
             break;
             case(Enum.OutputTypes.attack):
                 outputNode.target = {
+                    type:'entity',
                     entityType: ['mob'],
                     position:this.closePositionDeltaRange()
                 }
@@ -742,6 +743,7 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
             break;
             case(Enum.OutputTypes.openFurnace):
                 outputNode.target = {
+                    type:'block',
                     block:[
                         61,// Furnace
                         62, //Burning Furnace
@@ -752,6 +754,7 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
             break;
             case(Enum.OutputTypes.openDispenser):
                 outputNode.target = {
+                    type:'block',
                     block:[
                         23
                     ],
@@ -760,6 +763,7 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
             break;
             case(Enum.OutputTypes.openEnchantmentTable):
                 outputNode.target = {
+                    type:'block',
                     block:[
                         116
                     ],
@@ -781,8 +785,10 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
             case(Enum.OutputTypes.openVillager):
             case(Enum.OutputTypes.trade):
                 outputNode.target = {
+                    type:'entity',
+                    entityTypes: [120],
                     position:this.closePositionDeltaRange()
-                };
+                }
 
             break;
         }
