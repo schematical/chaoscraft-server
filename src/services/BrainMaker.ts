@@ -38,6 +38,12 @@ class BrainMaker{
         this.OUTPUT_KEYS.push('craft');
         this.OUTPUT_KEYS.push('craft');
         this.OUTPUT_KEYS.push('craft');
+        this.OUTPUT_KEYS.push('dig');
+        this.OUTPUT_KEYS.push('dig');
+        this.OUTPUT_KEYS.push('dig');
+        this.OUTPUT_KEYS.push('dig');
+        this.OUTPUT_KEYS.push('dig');
+        this.OUTPUT_KEYS.push('dig');
         /*this.OUTPUT_KEYS = [
             'placeBlock',
             'equip',

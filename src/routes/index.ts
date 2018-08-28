@@ -755,6 +755,51 @@ class Routes{
 
 
 
+        app.express.get('/report/brain', (req, res, next) => {
+            //Load a brain
+
+            let stats = {
+                botCount: 0,
+                types:{}
+            };
+            return app.mongo.models.chaoscraft.Bot.find({
+                generation: 24
+            }, (err:Error, bots:iBot[])=>{
+                if(err) {
+                    return next(err);
+                }
+                bots.forEach((bot)=>{
+                    let brain = JSON.parse(bot.brain);
+                    stats.botCount += 1;
+                    Object.keys(brain).forEach((brainNodeKey)=>{
+                        let brainNode = brain[brainNodeKey];
+                        stats.types[brainNode.type] = stats.types[brainNode.type] || {
+                            count:0,
+                            targets:{}
+                        };
+                        stats.types[brainNode.type].count += 1;
+                        switch(brainNode.type){
+                            case('craft'):
+                                brainNode.target.recipe.forEach((recipe)=>{
+                                    stats.types[brainNode.type].targets[recipe] = stats.types[brainNode.type].targets[recipe] || 0;
+                                    stats.types[brainNode.type].targets[recipe] += 1;
+                                })
+                            break;
+                            case('dig'):
+                                brainNode.target.block.forEach((block)=>{
+                                    stats.types[brainNode.type].targets[block] = stats.types[brainNode.type].targets[block] || 0;
+                                    stats.types[brainNode.type].targets[block] += 1;
+                                })
+                            break;
+                        }
+                    })
+                })
+                return res.json(stats);
+            })
+
+        })
+
+
     }
 }
 export { Routes }

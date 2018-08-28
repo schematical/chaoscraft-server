@@ -397,8 +397,9 @@ class BotSocket{
 
                     multi.hmset('/bots/' + this.bot.username + '/stats', 'distance_traveled', payload.distanceTraveled);
                     multi.hmset('/stats/distance_traveled',  this.bot.username, payload.distanceTraveled);
-                    multi.sadd('/achievement_types', 'distance_traveled')
-
+                    multi.sadd('/achievement_types', 'distance_traveled');
+                    multi.sadd('/achievement_types', 'generation');
+                    multi.sadd('/achievement_types', 'child_count');
                     multi.sadd('/achievement_types', 'age')
 
 
@@ -490,12 +491,16 @@ class BotSocket{
     }
     spawnChildren(payload, options?:any){
         let generation = this.bot.generation + 1;
+        let multi =  this.sm.app.redis.clients.chaoscraft;
         if(this.bot.username == 'adam-0'){
             this.bot.brain = fs.readFileSync(__dirname + '/../../adam.json').toString();
         }
+        multi.incrby('/stats/total_bot_count', 1);
         options = options || { };
         options.brainData = JSON.parse(this.bot.brain);
         options.generation = generation;
+
+
         options.litterSizeMultiplier = options.litterSizeMultiplier || 1;
 
 
@@ -509,8 +514,9 @@ class BotSocket{
 
         let promises = [];
         let litterSize = Math.floor(<number>config.get('brain.max_litter_size') * options.litterSizeMultiplier * Math.random());
-
+        multi.hincrby('/stats/child_count', payload.username, litterSize);
         for(let i = 0; i < litterSize; i++){
+
 
             promises.push(new Promise((resolve, reject)=>{
                 console.log("About to generate brain")
@@ -531,10 +537,12 @@ class BotSocket{
                     spawnPriority: generation,
                     shortid: _shortid
                 })
+
                 return childBot.save((err:Error, bot:iBot)=>{
                     if(err) {
                         return reject(err);
                     }
+                    multi.hincrby('/stats/generation', username, generation);
                     return resolve(bot);
 
                 })
@@ -551,6 +559,14 @@ class BotSocket{
                         }
                     })
                     return resolve();
+                })
+            })
+            .then(()=>{
+                return new Promise((resolve, reject)=>{
+                    multi.exec((err)=>{
+                        if(err) return reject(err);
+                        return resolve();
+                    })
                 })
             })
             .catch((err)=>{

@@ -120,7 +120,7 @@ class FitnessManager{
                     case('5:3'):
                     case('5:4'):
                     case('5:5'):
-                        return this.botSocket.spawnChildren(payload, { });
+                        return this.botSocket.spawnChildren(payload, {litterSizeMultiplier:10 });
                     case(58):
                     case(50):
                     case(268)://Wooden Sword
