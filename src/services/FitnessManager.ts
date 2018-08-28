@@ -130,11 +130,10 @@ class FitnessManager{
                     case(290)://Wooden Hoe
                         return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });
                     //break;
-
+                    default:
+                        return this.botSocket.spawnChildren(payload, { /*litterSizeMultiplier: 10*/ });
                 }
-            break;
-            default:
-                return this.botSocket.spawnChildren(payload, { /*litterSizeMultiplier: 10*/ });
+
             //break;
 
         }
