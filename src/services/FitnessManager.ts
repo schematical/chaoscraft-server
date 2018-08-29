@@ -110,7 +110,6 @@ class FitnessManager{
                     case(271)://Wooden Axe
                     case(290)://Wooden Hoe
                         return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });
-
                 }
             break;
             //case('place_block'):
@@ -122,6 +121,7 @@ class FitnessManager{
                     case('5:3'):
                     case('5:4'):
                     case('5:5'):
+                    case(280):
                         return this.botSocket.spawnChildren(payload, {litterSizeMultiplier:10 });
                     case(58):
                     case(50):
@@ -130,7 +130,7 @@ class FitnessManager{
                     case(270)://Wooden Pickaxe
                     case(271)://Wooden Axe
                     case(290)://Wooden Hoe
-                        return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });
+                        return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 100 });
                     //break;
                     default:
                         return this.botSocket.spawnChildren(payload, { /*litterSizeMultiplier: 10*/ });
