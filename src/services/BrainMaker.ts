@@ -38,12 +38,12 @@ class BrainMaker{
         this.OUTPUT_KEYS.push('craft');
         this.OUTPUT_KEYS.push('craft');
         this.OUTPUT_KEYS.push('craft');
+        this.OUTPUT_KEYS.push('craft');
+        this.OUTPUT_KEYS.push('craft');
+        this.OUTPUT_KEYS.push('craft');
         this.OUTPUT_KEYS.push('dig');
         this.OUTPUT_KEYS.push('dig');
-        this.OUTPUT_KEYS.push('dig');
-        this.OUTPUT_KEYS.push('dig');
-        this.OUTPUT_KEYS.push('dig');
-        this.OUTPUT_KEYS.push('dig');
+
         /*this.OUTPUT_KEYS = [
             'placeBlock',
             'equip',
@@ -560,10 +560,10 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
                     case(0):
                         inputNode.target = {
                             type:'entity',
-                            entityTypes: []
+                            entityType: []
                         }
                         for(let i = 0; i < config.get('brain.maxTargets'); i++){
-                            inputNode.target.entityTypes.push(this.randEntity().id);
+                            inputNode.target.entityType.push(this.randEntity().id);
                         }
                     break;
                     case(1):
@@ -770,23 +770,22 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
                     position:this.closePositionDeltaRange()
                 }
             break;
-            case(Enum.OutputTypes.openEntity):
             case(Enum.OutputTypes.activateEntity):
             case(Enum.OutputTypes.useOn):
                 outputNode.target = {
                     type:'entity',
-                    entityTypes: [],
+                    entityType: [],
                     position:this.closePositionDeltaRange()
                 }
                 for(let i = 0; i < config.get('brain.maxTargets'); i++){
-                    outputNode.target.entityTypes.push(this.randEntity().id);
+                    outputNode.target.entityType.push(this.randEntity().id);
                 }
             break;
             case(Enum.OutputTypes.openVillager):
             case(Enum.OutputTypes.trade):
                 outputNode.target = {
                     type:'entity',
-                    entityTypes: [120],
+                    entityType: [120],
                     position:this.closePositionDeltaRange()
                 }
 

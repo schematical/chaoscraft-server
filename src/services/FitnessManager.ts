@@ -100,6 +100,8 @@ class FitnessManager{
                     case('17:1'):
                     case('17:2'):
                     case('17:3'):
+                    case('162'):
+                    case('162:1'):
                         return this.botSocket.spawnChildren(payload, { });
 
                     case(268)://Wooden Sword
