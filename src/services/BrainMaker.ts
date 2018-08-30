@@ -44,6 +44,15 @@ class BrainMaker{
         this.OUTPUT_KEYS.push('dig');
         this.OUTPUT_KEYS.push('dig');
 
+        //TODO: REMOVE HACKY SHIT
+        this.OUTPUT_KEYS = _.reject(this.OUTPUT_KEYS, (key)=>{
+            switch(key){
+                case('openEntity'):
+                    return true;
+                default:
+                    return false;
+            }
+        });
         /*this.OUTPUT_KEYS = [
             'placeBlock',
             'equip',

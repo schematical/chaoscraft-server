@@ -281,7 +281,7 @@ class BotSocket{
                     break;
                 case('craft'):
                 case('craft_attempt'):
-                    var longStatName = payload.type + '.' + payload.recipe;
+                    var longStatName = payload.type + '/' + payload.recipe;
                     multi.hincrby('/stats/' + longStatName, payload.username, payload.value || 1);
                     multi.sadd('/achievement_types/' + payload.type, payload.recipe);
                     break;

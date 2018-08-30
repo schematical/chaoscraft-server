@@ -112,7 +112,7 @@ class FitnessManager{
                         return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 10 });
                 }
             break;
-            //case('place_block'):
+            //
             case('craft'):
                 switch(payload.recipe){
                     case(5):
@@ -135,8 +135,18 @@ class FitnessManager{
                     default:
                         return this.botSocket.spawnChildren(payload, { /*litterSizeMultiplier: 10*/ });
                 }
+            case('place_block'):
+                switch(payload.recipe){
 
-            //break;
+                    case(58):
+                    case(50):
+
+                        return this.botSocket.spawnChildren(payload, { litterSizeMultiplier: 100 });
+
+                   /* default:
+                        return this.botSocket.spawnChildren(payload, { /!*litterSizeMultiplier: 10*!/ });*/
+                }
+            break;
 
         }
         return new Promise((resolve, reject)=>{
