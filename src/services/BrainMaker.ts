@@ -43,7 +43,14 @@ class BrainMaker{
         this.OUTPUT_KEYS.push('craft');
         this.OUTPUT_KEYS.push('dig');
         this.OUTPUT_KEYS.push('dig');
-
+        this.OUTPUT_KEYS.push('placeBlock');
+        this.OUTPUT_KEYS.push('placeBlock');
+        this.OUTPUT_KEYS.push('placeBlock');
+        this.OUTPUT_KEYS.push('placeBlock');
+        this.OUTPUT_KEYS.push('equip');
+        this.OUTPUT_KEYS.push('equip');
+        this.OUTPUT_KEYS.push('equip');
+        this.OUTPUT_KEYS.push('equip');
         //TODO: REMOVE HACKY SHIT
         this.OUTPUT_KEYS = _.reject(this.OUTPUT_KEYS, (key)=>{
             switch(key){

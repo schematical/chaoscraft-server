@@ -534,7 +534,7 @@ class BotSocket{
                     brain: JSON.stringify(brainData),
                     generation:generation,
                     mother: this.bot._id,
-                    spawnPriority: generation,
+                    spawnPriority: options.spawnPriority || generation,
                     shortid: _shortid
                 })
 
