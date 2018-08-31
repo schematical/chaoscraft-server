@@ -331,6 +331,13 @@ class BotSocket{
                 return;
             default:
         }
+        switch(payload.death_reason){
+            case('death.attack.drown'):
+            case('death.attack.inWall'):
+            case('death.fell.accident.generic'):
+                return;
+            default:
+        }
         return this.onClientNotFiring(payload, {
             death_reason: payload.death_reason,
             killed_by: payload.attacker
