@@ -157,7 +157,7 @@ class FitnessManager{
                         //DO nothing
                     break;
                     default:
-                        return this.botSocket.spawnChildren(payload, { spawnPriority: 5050 });
+                        return this.botSocket.spawnChildren(payload, { });
                 }
             //break;
 
