@@ -142,7 +142,7 @@ class FitnessManager{
                         return this.botSocket.spawnChildren(payload, { /*litterSizeMultiplier: 10*/ });
                 }
             case('place_block'):
-            case('place_block_attempt'):
+            //case('place_block_attempt'):
                 switch(payload.recipe){
 
                     case(58):
@@ -152,6 +152,10 @@ class FitnessManager{
                             litterSizeMultiplier: 100,
                             spawnPriority: 5100
                         });
+                    case(3):
+                    case('3:1'):
+                        //DO nothing
+                    break;
                     default:
                         return this.botSocket.spawnChildren(payload, { spawnPriority: 5050 });
                 }
