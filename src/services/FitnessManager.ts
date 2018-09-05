@@ -142,7 +142,7 @@ class FitnessManager{
                         return this.botSocket.spawnChildren(payload, { /*litterSizeMultiplier: 10*/ });
                 }
             case('place_block'):
-            //case('place_block_attempt'):
+            //
                 switch(payload.recipe){
 
                     case(58):
@@ -156,6 +156,23 @@ class FitnessManager{
                     case('3:1'):
                         //DO nothing
                     break;
+                    default:
+                        return this.botSocket.spawnChildren(payload, { });
+                }
+            case('place_block_attempt'):
+                switch(payload.recipe){
+
+                    case(58):
+                    case(50):
+
+                        return this.botSocket.spawnChildren(payload, {
+                            litterSizeMultiplier: 50,
+                            spawnPriority: 5050
+                        });
+                    case(3):
+                    case('3:1'):
+                        //DO nothing
+                        break;
                     default:
                         return this.botSocket.spawnChildren(payload, { });
                 }

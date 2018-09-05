@@ -16,6 +16,7 @@ class BrainMaker{
     protected minecraftData = null;
     protected INPUT_KEYS = null;
     protected OUTPUT_KEYS = null;
+    protected WORD_KEYS = null;
     protected indexedNodes:any = {};
     public create(options){
         options.length =  options.length || config.get('brain.length');
@@ -25,6 +26,7 @@ class BrainMaker{
 
         this.indexedNodes = options.brainData || {};
         this.minecraftData = MinecraftData(config.get('minecraft.version'));
+        this.WORD_KEYS = Object.keys(Enum.ChatWords);
         this.INPUT_KEYS = Object.keys(Enum.InputTypes);
         this.INPUT_KEYS = _.reject(this.INPUT_KEYS, (key)=>{
             switch(key){
@@ -656,6 +658,17 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
                  id: this.randEntity()
                  }*/
                 break;
+            case(Enum.InputTypes.chat):
+                inputNode.target = {
+                    type:'player',
+                    //entityType: [],
+                    //position:this.closePositionDeltaRange(),
+                    word: this.randWord()
+                }
+                /*for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                    inputNode.target.entityType.push(this.randEntity().id);
+                }*/
+
 
 
         }
@@ -806,6 +819,18 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
                 }
 
             break;
+            case(Enum.OutputTypes.chat):
+                outputNode.target = {
+                    type:'player',
+                    //entityType: [],
+                    //position:this.closePositionDeltaRange(),
+                    word: this.randWord()
+                }
+                /*for(let i = 0; i < config.get('brain.maxTargets'); i++){
+                    outputNode.target.entityType.push(this.randEntity().id);
+                }*/
+            break;
+
         }
 
 
@@ -823,6 +848,9 @@ console.log("Adding " + neededOutputs + " Outputs to generation " + options.gene
     randRecipe(){
         let rKeys = Object.keys(this.minecraftData.recipes);
         return rKeys[Math.floor(Math.random() * rKeys.length)];
+    }
+    randWord(){
+        return this.WORD_KEYS[Math.floor(Math.random() * this.WORD_KEYS.length)];
     }
 }
 class PositionDeltaRange{
