@@ -8,6 +8,8 @@ import * as fs from 'fs';
 import * as MinecraftData from 'minecraft-data'
 import * as config from 'config';
 import {networkInterfaces} from "os";
+import * as replaceall from 'replaceall';
+import * as shortid from 'shortid';
 class Routes{
     static setup(app:App){
         app.express.disable('etag');
@@ -73,6 +75,103 @@ class Routes{
             }
 
             return res.json(brainholder[req.params._bot.generation + TEST_LENGTH]);
+        });
+
+        app.express.post('/bots/:bot/spawn', (req, res, next) => {
+            if(!req.params._bot){
+                return res.status(404).json({});
+            }
+
+
+            let generation = req.params._bot.generation + 1;
+            let multi = app.redis.clients.chaoscraft.multi();
+            if(req.params._bot.username == 'adam-0'){
+                req.params._bot.brain = fs.readFileSync(__dirname + '/../../adam.json').toString();
+            }
+            multi.incrby('/stats/total_bot_count', 1);
+            let options:any = { };
+            options.brainData = JSON.parse(req.params._bot.brain);
+            options.generation = generation;
+            options.additionalNodeBonus = req.body.additionalNodeBonus || 0;
+            options.decayNodeBonus = req.body.decayNodeBonus || 0;
+
+            options.litterSizeMultiplier = req.body.litterSizeMultiplier || 1;
+
+
+
+            let parts = req.params._bot.username.split('-');
+            let generationAndHeritage = parts.pop().substr(1);
+            let usernameBase = parts.join('-');
+            if(usernameBase.length + generationAndHeritage.length > 13){
+                usernameBase = usernameBase.substr(0, 13 - generationAndHeritage.length);
+            }
+
+            let promises = [];
+            let litterSize = Math.floor(<number>config.get('brain.max_litter_size') * options.litterSizeMultiplier * Math.random());
+            multi.hincrby('/stats/child_count', req.params._bot.username, litterSize);
+            for(let i = 0; i < litterSize; i++){
+
+
+                promises.push(new Promise((resolve, reject)=>{
+                    console.log("About to generate brain")
+                    let brainMaker = new BrainMaker();
+                    let brainData = brainMaker.create(options);
+                    console.log("Successfully  generate brain");
+                    req.params._bot.spawnCount = req.params._bot.spawnCount || 0;
+                    req.params._bot.spawnCount += 1;
+                    let _shortid = shortid.generate();
+                    let username = usernameBase +'-'+generation  + '-' + _shortid;
+                    username = replaceall('--', '-',username)
+                    let childBot = app.mongo.models.chaoscraft.Bot({
+                        username: username,
+                        name:req.params._bot.name,
+                        brain: JSON.stringify(brainData),
+                        generation:generation,
+                        mother: req.params._bot._id,
+                        spawnPriority: options.spawnPriority || generation,
+                        shortid: _shortid
+                    })
+
+                    return childBot.save((err:Error, bot:iBot)=>{
+                        if(err) {
+                            return reject(err);
+                        }
+                        multi.hincrby('/stats/generation', username, generation);
+                        return resolve(bot);
+
+                    })
+                }))
+            }
+
+            return Promise.all(promises)
+                .then(()=>{
+                    return new Promise((resolve, reject)=>{
+
+                        req.params._bot.save((err)=>{
+                            if(err){
+                                return reject(err);
+                            }
+                        })
+                        return resolve();
+                    })
+                })
+                .then(()=>{
+                    return new Promise((resolve, reject)=>{
+                        multi.exec((err)=>{
+                            if(err) return reject(err);
+                            return resolve();
+                        })
+                    })
+                })
+                .then(()=>{
+                    return res.json({
+                        message: "Done generating " + litterSize + " generation " + options.generation
+                    });
+                })
+                .catch((err)=>{
+                    console.error(err.message, err.stack);
+                    return next(err);
+                })
         });
 
         app.express.post('/reset', (req, res, next) => {

@@ -10,7 +10,7 @@ import { SocketManager } from './services/SocketManager'
 import * as config from 'config'
 class App{
     protected _express:express.Application;
-    protected socket:SocketManager = null;
+    protected _socket:SocketManager = null;
     protected _redis:Redis = null;
     protected _mongo:Mongoose = null;
 
@@ -21,7 +21,7 @@ class App{
 
         Routes.setup(this);
         var server = http.createServer(this.express);
-        this.socket = new SocketManager(this, server);
+        this._socket = new SocketManager(this, server);
         server.listen(config.get('port'), ()=>{
             console.log("Express Listening:", config.get('port'));
         });
@@ -35,6 +35,9 @@ class App{
     }
     get express(){
         return this._express;
+    }
+    get socket(){
+        return this._socket;
     }
 
 }

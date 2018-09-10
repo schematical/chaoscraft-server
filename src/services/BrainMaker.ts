@@ -23,7 +23,8 @@ class BrainMaker{
         options.generation = options.generation || 0;
         options.maxChainLength = options.maxChainLength || config.get('brain.maxChainLength');
         options.inputNodePool = options.inputNodePool || config.get('brain.inputNodePool');
-
+        options.additionalNodeBonus = options.additionalNodeBonus || 0;
+        options.decayNodeBonus = options.decayNodeBonus || 0;
         this.indexedNodes = options.brainData || {};
         this.minecraftData = MinecraftData(config.get('minecraft.version'));
         this.WORD_KEYS = Object.keys(Enum.ChatWords);
@@ -120,8 +121,8 @@ class BrainMaker{
         let  passOnAdd = <number>config.get('brain.passOnAdd');
         let  passOnDecay = <number>config.get('brain.passOnDecay');
         if(options.generation){
-            newMaxOutputLength = options.length + options.generation;  //Math.ceil(options.length * Math.pow((1 + passOnAdd), options.generation));
-            decayNodesLength = 0;//Math.floor(newMaxOutputLength * passOnDecay);
+            newMaxOutputLength = options.length + options.generation + options.additionalNodeBonus;  //Math.ceil(options.length * Math.pow((1 + passOnAdd), options.generation));
+            decayNodesLength = options.decayNodeBonus;//Math.floor(newMaxOutputLength * passOnDecay);
 
 
         }

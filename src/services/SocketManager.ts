@@ -496,7 +496,7 @@ class BotSocket{
 
         })
     }
-    spawnChildren(payload, options?:any){
+    public spawnChildren(payload, options?:any){
         let generation = this.bot.generation + 1;
         let multi =  this.sm.app.redis.clients.chaoscraft.multi();
         if(this.bot.username == 'adam-0'){
