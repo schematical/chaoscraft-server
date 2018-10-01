@@ -20,7 +20,7 @@ module.exports = {
     redis:{
         chaoscraft: {
             port: 6379,
-            host:  'slack-tools.bdzyjf.0001.use1.cache.amazonaws.com',
+            host:  'cast-prod-util.bdzyjf.0001.use1.cache.amazonaws.com',
             prefix: 'chaoscraft:'
         }
     },
